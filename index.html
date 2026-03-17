@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Place Brokers · Sistema de Vendas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f4;min-height:100vh;}
+:root{--pb:#D42B2B;--pbh:#b82424;--pbd:#1E1E1E;--pbl:#FAECEC;--bg:#fff;--bg2:#f5f5f4;--bg3:#eeecea;--border:rgba(0,0,0,0.1);--border2:rgba(0,0,0,0.18);--text:#1a1a1a;--text2:#6b7280;--radius:8px;--rlg:12px;}
+.app{min-height:100vh;}
+.screen{display:none;}.screen.active{display:flex;min-height:100vh;flex-direction:column;}
+
+/* LOGIN */
+.login-wrap{display:flex;min-height:100vh;}
+.login-left{width:40%;background:var(--pbd);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem;gap:1rem;}
+.login-brand{font-size:32px;font-weight:500;color:#fff;}.login-brand span{color:var(--pb);}
+.login-tagline{font-size:12px;color:rgba(255,255,255,0.4);text-align:center;line-height:1.8;}
+.login-right{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;background:var(--bg2);}
+.login-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--rlg);padding:2rem;width:100%;max-width:380px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.lc-title{font-size:16px;font-weight:500;color:var(--text);margin-bottom:.25rem;}
+.lc-sub{font-size:12px;color:var(--text2);margin-bottom:1.5rem;}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:1rem;}
+.f label{font-size:12px;color:var(--text2);font-weight:500;}
+.f input{padding:9px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:14px;width:100%;}
+.f input:focus{outline:none;border-color:var(--pb);}
+.login-err{font-size:12px;color:var(--pb);background:var(--pbl);padding:7px 10px;border-radius:var(--radius);margin-bottom:.875rem;display:none;}
+.btn-login{width:100%;padding:10px;background:var(--pb);color:#fff;border:none;border-radius:var(--radius);font-size:14px;cursor:pointer;font-weight:500;}
+.btn-login:hover{background:var(--pbh);}
+.demo-box{margin-top:1.25rem;padding:.875rem;background:var(--bg2);border-radius:var(--radius);}
+.demo-box-t{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:.5rem;}
+.demo-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:var(--text2);}
+.demo-row span:last-child{color:var(--text);font-weight:500;}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;}
+.sidebar{width:215px;flex-shrink:0;background:var(--pbd);display:flex;flex-direction:column;}
+.sb-brand{padding:.9rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08);font-size:16px;font-weight:500;color:#fff;}
+.sb-brand span{color:var(--pb);}
+.sb-user{padding:.625rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-user-name{font-size:12px;font-weight:500;color:#fff;}
+.sb-user-role{font-size:10px;color:rgba(255,255,255,0.45);margin-top:1px;}
+.nav-sec{font-size:9px;color:rgba(255,255,255,0.3);padding:.625rem 1rem .2rem;letter-spacing:.06em;text-transform:uppercase;}
+.ni{display:flex;align-items:center;gap:8px;padding:9px 1rem;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;}
+.ni:hover{background:rgba(255,255,255,0.05);color:#fff;}
+.ni.on{background:rgba(212,43,43,0.18);color:#fff;border-left:2px solid var(--pb);}
+.ni-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.sb-ft{margin-top:auto;padding:.75rem 1rem;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:8px;}
+.sb-av{width:28px;height:28px;border-radius:50%;background:var(--pb);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#fff;flex-shrink:0;}
+.sb-ft-name{font-size:11px;color:rgba(255,255,255,0.7);flex:1;}
+.sb-ft-sair{font-size:11px;color:rgba(255,255,255,0.35);background:none;border:none;cursor:pointer;}
+.sb-ft-sair:hover{color:#fff;}
+
+.topbar{background:var(--bg);border-bottom:1px solid var(--border);padding:0 1.5rem;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.tb-left{font-size:13px;color:var(--text2);}
+.tb-left strong{color:var(--text);font-weight:500;}
+.tb-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;}
+.badge-g{background:#E6F1FB;color:#0C447C;}.badge-d{background:#FAEEDA;color:#854F0B;}.badge-a{background:var(--pbl);color:var(--pb);}
+
+.main{flex:1;overflow:auto;background:var(--bg2);}
+.mi{padding:1.5rem;}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;}
+.pt{font-size:16px;font-weight:500;color:var(--text);}
+.ps{font-size:12px;color:var(--text2);margin-top:3px;}
+
+.metrics{display:grid;gap:12px;margin-bottom:1.25rem;}
+.m3{grid-template-columns:repeat(3,minmax(0,1fr));}.m4{grid-template-columns:repeat(4,minmax(0,1fr));}
+.mc{background:var(--bg);border-radius:var(--radius);padding:1rem;border:1px solid var(--border);}
+.mc-l{font-size:11px;color:var(--text2);margin-bottom:4px;}
+.mc-v{font-size:22px;font-weight:500;color:var(--text);}
+.mc-s{font-size:11px;margin-top:3px;color:var(--text2);}
+.up{color:#1D9E75;}
+
+.tc{background:var(--bg);border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;margin-bottom:1rem;}
+.tc-head{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;border-bottom:1px solid var(--border);}
+.tc-title{font-size:13px;font-weight:500;color:var(--text);}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:8px 12px;font-size:11px;font-weight:500;color:var(--text2);border-bottom:1px solid var(--border);background:var(--bg2);}
+td{padding:9px 12px;font-size:12px;color:var(--text);border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg2);}
+.cpf{font-size:10px;color:var(--text2);margin-top:2px;}
+.bdg{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:500;}
+.bg{background:#EAF3DE;color:#3B6D11;}.bb{background:#E6F1FB;color:#0C447C;}
+.ba{background:#FAEEDA;color:#854F0B;}.br{background:var(--pbl);color:var(--pb);}
+.bgr{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
+.bfut{background:#EBF3FF;color:#2563EB;}
+.bapar{background:#DCFCE7;color:#166534;}.bdes{background:#FEF3C7;color:#92400E;}
+
+.btn{padding:7px 14px;border-radius:var(--radius);font-size:12px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text);}
+.btn:hover{background:var(--bg2);}
+.btn-pb{background:var(--pb);color:#fff;border-color:var(--pb);}
+.btn-pb:hover{background:var(--pbh);}
+.btn-ok{background:#1D9E75;color:#fff;border-color:#1D9E75;}
+.btn-ok:hover{background:#15805F;}
+.btn-del{color:var(--pb);border-color:var(--pb);}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-blue{color:#2563EB;border-color:#2563EB;font-size:11px;padding:4px 10px;}
+
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;}
+.full{grid-column:1/-1;}
+.ff{display:flex;flex-direction:column;gap:4px;}
+.ff label{font-size:12px;color:var(--text2);font-weight:500;}
+.ff input,.ff select,.ff textarea{padding:7px 9px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:13px;width:100%;}
+.ff input:focus,.ff select:focus,.ff textarea:focus{outline:none;border-color:var(--pb);}
+.ff input.err{border-color:var(--pb) !important;}
+.ff .err-msg{font-size:11px;color:var(--pb);display:none;margin-top:2px;}
+.ff textarea{resize:vertical;min-height:55px;}
+.fsec{background:var(--bg);border:1px solid var(--border);border-radius:var(--rlg);padding:1.25rem;margin-bottom:.875rem;}
+.fsec-t{font-size:13px;font-weight:500;color:var(--text);margin-bottom:.875rem;padding-bottom:.625rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.st{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;}
+.st th{text-align:left;padding:6px 8px;font-size:11px;color:var(--text2);border-bottom:1px solid var(--border);background:var(--bg2);}
+.st td{padding:5px 4px;border-bottom:1px solid var(--border);}
+.st td input,.st td select{width:100%;padding:5px 7px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:12px;}
+.st tr:last-child td{border-bottom:none;}
+.btn-add{font-size:12px;color:var(--pb);background:none;border:1px dashed var(--pb);border-radius:var(--radius);padding:5px 12px;cursor:pointer;margin-top:6px;}
+.stotal{display:flex;justify-content:space-between;padding:7px 12px;background:var(--bg2);border-radius:var(--radius);margin-top:8px;font-size:13px;border:1px solid var(--border);}
+.pp-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.pp{background:var(--bg2);border-radius:var(--radius);padding:5px 10px;font-size:10px;color:var(--text2);text-align:center;border:1px solid var(--border);}
+.pp span{display:block;font-size:12px;font-weight:500;color:var(--text);}
+.fa{display:flex;gap:8px;justify-content:flex-end;padding:1rem 1.5rem;border-top:1px solid var(--border);background:var(--bg);}
+
+/* Comissão banner */
+.com-banner{margin-top:10px;padding:12px;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border);}
+.com-banner-t{font-size:10px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.com-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.com-item{background:var(--bg);border-radius:var(--radius);padding:8px 10px;border:1px solid var(--border);}
+.com-item-l{font-size:10px;color:var(--text2);}
+.com-item-v{font-size:14px;font-weight:500;color:var(--text);}
+
+/* Parcelas */
+.ph-ro{display:grid;grid-template-columns:55px 1fr 1fr 1fr 95px;gap:6px;padding:8px 1rem;background:var(--bg2);border-bottom:1px solid var(--border);font-size:11px;font-weight:500;color:var(--text2);}
+.pr-ro{display:grid;grid-template-columns:55px 1fr 1fr 1fr 95px;gap:6px;padding:9px 1rem;border-bottom:1px solid var(--border);font-size:12px;align-items:center;}
+.pr-ro:last-child{border-bottom:none;}
+.ph-rw{display:grid;grid-template-columns:55px 1fr 130px 90px 95px 70px 115px;gap:5px;padding:8px 1rem;background:var(--bg2);border-bottom:1px solid var(--border);font-size:11px;font-weight:500;color:var(--text2);}
+.pr-rw{display:grid;grid-template-columns:55px 1fr 130px 90px 95px 70px 115px;gap:5px;padding:8px 1rem;border-bottom:1px solid var(--border);font-size:12px;align-items:center;}
+.pr-rw:last-child{border-bottom:none;}
+.pr-rw.pago{background:#EAF3DE22;}.pr-rw.editando{background:#EBF3FF55;}
+.parc-val-inp{width:100%;padding:4px 7px;border:1px solid #2563EB;border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:12px;font-weight:500;}
+
+.aviso-ro{padding:8px 12px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--text2);margin-bottom:12px;border:1px solid var(--border);}
+.aviso-ok{padding:8px 12px;background:#DCFCE7;border-radius:var(--radius);font-size:12px;color:#166534;margin-bottom:12px;}
+
+.meses-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.25rem;}
+.mes-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--rlg);padding:1.125rem;cursor:pointer;}
+.mes-card:hover{border-color:var(--pb);background:var(--pbl);}
+.mes-nome{font-size:14px;font-weight:500;color:var(--text);margin-bottom:6px;}
+.mes-val{font-size:20px;font-weight:500;color:var(--text);}
+.mes-qtd{font-size:12px;color:var(--text2);margin-top:3px;}
+.mes-bar{height:3px;background:var(--bg2);border-radius:2px;margin-top:10px;overflow:hidden;}
+.mes-bar-fill{height:100%;background:var(--pb);border-radius:2px;}
+.breadcrumb{display:flex;align-items:center;gap:6px;margin-bottom:1rem;font-size:12px;color:var(--text2);}
+.breadcrumb .link{cursor:pointer;color:var(--pb);}
+.breadcrumb .link:hover{text-decoration:underline;}
+
+.hg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:1.25rem;}
+.hc{background:var(--bg);border:1px solid var(--border);border-radius:var(--rlg);padding:1rem;}
+.hc-hd{display:flex;align-items:center;gap:10px;margin-bottom:.875rem;}
+.av{width:32px;height:32px;border-radius:50%;background:var(--pbl);color:var(--pb);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;}
+.hn{font-size:13px;font-weight:500;color:var(--text);}
+.hr{font-size:11px;color:var(--text2);}
+.hrow{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border);}
+.hrow:last-child{border-bottom:none;}
+.hrow span:last-child{font-weight:500;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg);border-radius:var(--rlg);width:100%;max-width:640px;box-shadow:0 12px 40px rgba(0,0,0,0.2);margin-bottom:40px;}
+.modal-hd{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+.modal-hd-left .modal-title{font-size:15px;font-weight:500;color:var(--text);}
+.modal-hd-left .modal-sub{font-size:11px;color:var(--text2);margin-top:3px;}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);line-height:1;}
+.modal-body{padding:1.5rem;}
+.modal-sec{margin-bottom:1.25rem;}
+.modal-sec:last-child{margin-bottom:0;}
+.modal-sec-t{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-bottom:.875rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);}
+.modal-ft{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:var(--bg2);border-radius:0 0 var(--rlg) var(--rlg);}
+.com-preview{background:var(--bg2);border-radius:var(--radius);padding:10px 12px;margin-top:10px;border:1px solid var(--border);}
+.com-preview-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);}
+.com-preview-row:last-child{border-bottom:none;font-weight:500;}
+.com-preview-row span:first-child{color:var(--text2);}
+
+.confirm-modal{background:var(--bg);border-radius:var(--rlg);padding:1.75rem;width:100%;max-width:380px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.2);margin-bottom:40px;}
+.confirm-icon{font-size:36px;margin-bottom:.875rem;}
+.confirm-title{font-size:15px;font-weight:500;color:var(--text);margin-bottom:.5rem;}
+.confirm-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem;}
+.confirm-actions{display:flex;gap:8px;justify-content:center;}
+
+.export-section{background:var(--bg);border:1px solid var(--border);border-radius:var(--rlg);padding:1.25rem;margin-bottom:1rem;}
+.export-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:1rem;}
+.export-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.export-row:last-child{border-bottom:none;}
+.export-name{font-size:13px;font-weight:500;color:var(--text);}
+.export-desc{font-size:12px;color:var(--text2);margin-top:3px;}
+.export-btns{display:flex;gap:6px;}
+.btn-exp{background:transparent;color:#1D9E75;border:1px solid #1D9E75;font-size:12px;padding:6px 12px;border-radius:var(--radius);cursor:pointer;}
+.btn-exp:hover{background:#DCFCE7;}
+.mes-sel{display:flex;align-items:center;gap:10px;margin-bottom:1rem;}
+.mes-sel label{font-size:13px;color:var(--text2);font-weight:500;}
+.mes-sel select{padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:13px;}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:#fff;padding:10px 22px;border-radius:var(--radius);font-size:13px;display:none;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,0.2);}
+</style>
+
+
+
+</head>
+<body>
+<div class="app">
+
+<!-- LOGIN -->
+<div class="screen active" id="sc-login">
+  <div class="login-wrap">
+    <div class="login-left">
+      <div class="login-brand">Place<span>Brokers</span></div>
+      <div class="login-tagline">Sistema de gestão de vendas<br>e contas a receber</div>
+    </div>
+    <div class="login-right">
+      <div class="login-card">
+        <div class="lc-title">Acesso ao sistema</div>
+        <div class="lc-sub">Entre com suas credenciais cadastradas</div>
+        <div class="login-err" id="login-err">E-mail ou senha incorretos.</div>
+                <div class="f"><label>E-mail</label><input type="text" id="inp-email" placeholder="seu@email.com" autocomplete="off"/></div>
+        <div class="f"><label>Senha</label><input type="password" id="inp-senha" placeholder="Digite sua senha" autocomplete="off"/></div>
+        <button class="btn-login" onclick="doLogin()">Entrar</button>
+        <div style="font-size:11px;color:var(--text2);text-align:center;margin-top:1rem;">Acesso controlado pelo administrador.</div>
+        <div class="demo-box">
+          <div class="demo-box-t">Acesso rápido — clique para preencher</div>
+          <div class="demo-row" style="cursor:pointer;" onclick="preencherLogin('joao')"><span>joao@placebrokers.com.br</span><span style="background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:10px;font-size:10px;">Gerente</span></div>
+          <div class="demo-row" style="cursor:pointer;" onclick="preencherLogin('luis')"><span>luis@placebrokers.com.br</span><span style="background:#FAEEDA;color:#854F0B;padding:2px 8px;border-radius:10px;font-size:10px;">Diretor</span></div>
+          <div class="demo-row" style="cursor:pointer;" onclick="preencherLogin('admin')"><span>admin@placebrokers.com.br</span><span style="background:#FAECEC;color:#D42B2B;padding:2px 8px;border-radius:10px;font-size:10px;">Admin</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GERENTE -->
+<div class="screen" id="sc-gerente">
+  <div class="topbar"><span class="tb-left">Place Brokers · <strong id="g-topname"></strong></span><span class="tb-badge badge-g" id="g-toprole"></span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sb-brand">Place<span>Brokers</span></div>
+      <div class="sb-user"><div class="sb-user-name" id="g-sbname"></div><div class="sb-user-role" id="g-sbrole"></div></div>
+      <div class="nav-sec">Menu</div>
+      <div class="ni on" onclick="gTab('vendas',this)"><div class="ni-dot"></div>Minhas vendas</div>
+      <div class="ni" onclick="gTab('form',this)"><div class="ni-dot"></div>Nova venda</div>
+      <div class="ni" onclick="gTab('corretores',this)"><div class="ni-dot"></div>Corretores</div>
+      <div class="ni" onclick="gTab('receber',this)"><div class="ni-dot"></div>A receber</div>
+      <div class="ni" onclick="gTab('exportar',this)"><div class="ni-dot"></div>Exportar</div>
+      <div class="sb-ft"><div class="sb-av" id="g-av"></div><div class="sb-ft-name" id="g-ftname"></div><button class="sb-ft-sair" onclick="logout()">Sair</button></div>
+    </div>
+    <div class="main">
+
+      <!-- MINHAS VENDAS -->
+      <div class="mi" id="g-vendas">
+        <div class="ph"><div><div class="pt">Minhas vendas</div><div class="ps" id="g-vsub"></div></div><button class="btn btn-pb" onclick="abrirFormNovo()">+ Nova venda</button></div>
+        <div class="tc" id="g-vendas-tc"></div>
+      </div>
+
+      <!-- FORM NOVA/EDITAR VENDA -->
+      <div id="g-form" style="display:none;flex-direction:column;">
+        <div style="padding:1.5rem 1.5rem 0;"><div class="ph"><div><div class="pt" id="g-form-title">Lançar nova venda</div><div class="ps">Campos com * são obrigatórios</div></div></div></div>
+        <div style="padding:0 1.5rem;flex:1;overflow-y:auto;padding-bottom:1rem;">
+
+          <div class="fsec">
+            <div class="fsec-t">Tipo e corretor</div>
+            <div class="fg3">
+              <div class="ff"><label>Tipo de venda *</label>
+                <select id="fc-tipo">
+                  <option value="">Selecione...</option>
+                  <option value="Apartado">Apartado</option>
+                  <option value="Desligamento">Desligamento</option>
+                </select>
+              </div>
+              <div class="ff"><label>Corretor responsável *</label><select id="fc-corretor"><option value="">Selecione...</option></select></div>
+              <div class="ff"><label>% comissão do corretor *</label><input id="fc-pct-cor" type="number" min="0" max="100" placeholder="Ex: 60" oninput="calcBannerForm()"/></div>
+            </div>
+          </div>
+
+          <div class="fsec">
+            <div class="fsec-t">Dados do cliente</div>
+            <div class="fg2">
+              <div class="ff"><label>Nome completo *</label><input id="fc-nome" placeholder="Nome do cliente"/></div>
+              <div class="ff"><label>CPF *</label><input id="fc-cpf" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14"/>
+                <span class="err-msg" id="err-cpf">CPF inválido</span></div>
+              <div class="ff"><label>Telefone * (DDD + 9 dígitos)</label><input id="fc-tel" placeholder="(00) 00000-0000" oninput="maskTel(this)" maxlength="16"/>
+                <span class="err-msg" id="err-tel">Telefone inválido (ex: (81) 99999-9999)</span></div>
+              <div class="ff"><label>E-mail</label><input id="fc-email" placeholder="cliente@dominio.com.br" oninput="validaEmailInp(this)"/>
+                <span class="err-msg" id="err-email">E-mail inválido (precisa ter domínio válido)</span></div>
+            </div>
+          </div>
+
+          <div class="fsec">
+            <div class="fsec-t">Empreendimento</div>
+            <div class="fg3">
+              <div class="ff"><label>Empreendimento *</label><select id="fc-emp"><option value="">Selecione...</option></select></div>
+              <div class="ff"><label>Unidade</label><input id="fc-unidade" placeholder="Ex: Apto 304 Bloco B"/></div>
+              <div class="ff"><label>VGV — Valor Geral de Venda *</label><input id="fc-vgv" type="number" placeholder="Ex: 320000" oninput="calcBannerForm()"/></div>
+              <div class="ff full"><label>Observações</label><textarea id="fc-obs" placeholder="Informações adicionais..."></textarea></div>
+            </div>
+          </div>
+
+          <div class="fsec">
+            <div class="fsec-t">Comissão e valores</div>
+            <div class="fg4">
+              <div class="ff"><label>Comissão total (R$) *</label><input id="fc-comissao" type="number" placeholder="Ex: 15000" oninput="calcBannerForm()"/></div>
+              <div class="ff"><label>Valor do sinal (R$) *</label><input id="fc-sinal" type="number" placeholder="Ex: 30000"/></div>
+              <div class="ff"><label>Premiação (R$)</label><input id="fc-premiacao" type="number" placeholder="Ex: 5000"/></div>
+              <div class="ff"><label>% receita empresa s/ VGV</label><input id="fc-pct-emp" type="number" value="6" oninput="calcBannerForm()"/></div>
+            </div>
+            <div class="com-banner" id="form-com-banner" style="display:none;">
+              <div class="com-banner-t">Distribuição da comissão</div>
+              <div class="com-grid" id="form-com-grid"></div>
+            </div>
+          </div>
+
+          <div class="fsec">
+            <div class="fsec-t">Composição do sinal</div>
+            <table class="st"><thead><tr><th style="width:36%">Descrição</th><th style="width:26%">Valor (R$)</th><th style="width:25%">Destinatário</th><th></th></tr></thead>
+            <tbody id="f-sinal-body">
+              <tr><td><input value="Comissão corretor"/></td><td><input value="15.000,00"/></td><td><select><option>Corretor/Gerente</option><option>Construtora</option><option>Imobiliária</option></select></td><td><button class="btn btn-sm btn-del" onclick="this.closest('tr').remove()">✕</button></td></tr>
+              <tr><td><input value="Premiação"/></td><td><input value="5.000,00"/></td><td><select><option>Corretor/Gerente</option><option>Construtora</option><option>Imobiliária</option></select></td><td><button class="btn btn-sm btn-del" onclick="this.closest('tr').remove()">✕</button></td></tr>
+              <tr><td><input value="Repasse construtora"/></td><td><input value="10.000,00"/></td><td><select><option selected>Construtora</option><option>Corretor/Gerente</option><option>Imobiliária</option></select></td><td><button class="btn btn-sm btn-del" onclick="this.closest('tr').remove()">✕</button></td></tr>
+            </tbody></table>
+            <button class="btn-add" onclick="addSRow()">+ Adicionar item</button>
+            <div class="stotal"><span>Total composto</span><span>R$ 30.000,00</span></div>
+          </div>
+
+          <div class="fsec">
+            <div class="fsec-t">Parcelamento</div>
+            <div class="fg4">
+              <div class="ff"><label>Nº de parcelas *</label><input type="number" value="48" id="f-nparc" oninput="buildParc()"/></div>
+              <div class="ff"><label>Valor por parcela (R$)</label><input id="f-vparc" type="number" placeholder="Ex: 1800" oninput="buildParc()"/></div>
+              <div class="ff"><label>Data da 1ª parcela *</label><input type="date" id="f-inicio" value="2025-04-10" oninput="buildParc()"/></div>
+              <div class="ff"><label>Dia de vencimento</label><input type="number" id="f-dia" value="10" min="1" max="28" oninput="buildParc()"/></div>
+            </div>
+            <div style="font-size:11px;color:var(--text2);margin:8px 0 4px;">Prévia — parcelas com intervalo de 30 dias</div>
+            <div class="pp-wrap" id="f-pp"></div>
+          </div>
+
+        </div>
+        <div class="fa">
+          <button class="btn" id="g-form-cancel" onclick="gTab('vendas',document.querySelector('#sc-gerente .ni'))">Cancelar</button>
+          <button class="btn btn-pb" id="g-form-btn" onclick="salvarVenda()">Salvar venda</button>
+        </div>
+      </div>
+
+      <!-- CORRETORES -->
+      <div class="mi" id="g-corretores" style="display:none;">
+        <div class="ph"><div><div class="pt">Corretores</div><div class="ps">Cadastre e gerencie os corretores da sua equipe</div></div><button class="btn btn-pb" onclick="abrirModalCorretor(null)">+ Novo corretor</button></div>
+        <div class="tc" id="g-cor-tc"></div>
+        <div style="margin-top:1.5rem;">
+          <div class="pt" style="font-size:14px;margin-bottom:1rem;">Resumo do mês por corretor</div>
+          <div id="g-cor-resumo" class="hg"></div>
+        </div>
+      </div>
+
+      <!-- A RECEBER GERENTE -->
+      <div class="mi" id="g-receber" style="display:none;">
+        <div id="g-v1">
+          <div class="ph"><div><div class="pt">Contas a receber</div><div class="ps">Visão mensal — clique num mês para detalhar</div></div></div>
+          <div class="metrics m3">
+            <div class="mc"><div class="mc-l">Total a receber</div><div class="mc-v" id="g-rec-total">—</div><div class="mc-s" id="g-rec-parc">—</div></div>
+            <div class="mc"><div class="mc-l">Parcelas pagas</div><div class="mc-v" id="g-rec-pagas">0</div><div class="mc-s up">quitadas</div></div>
+            <div class="mc"><div class="mc-l">Parcelas em aberto</div><div class="mc-v" id="g-rec-aberto">—</div></div>
+          </div>
+          <div class="meses-grid" id="g-meses-grid"></div>
+        </div>
+        <div id="g-v2" style="display:none;">
+          <div class="breadcrumb"><span class="link" onclick="nav('g',1)">A receber</span> › <strong id="g-b2"></strong></div>
+          <div class="ph"><div><div class="pt" id="g-t2"></div></div></div>
+          <div class="tc"><div class="tc-head"><span class="tc-title">Clientes</span><span id="g-tot2" style="font-size:12px;font-weight:500;color:var(--pb);"></span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:10px;padding:7px 1rem;font-size:11px;font-weight:500;color:var(--text2);border-bottom:1px solid var(--border);">
+              <span>Cliente</span><span>Empreendimento</span><span>Tipo</span><span>Parcelas</span><span></span>
+            </div>
+            <div id="g-list2"></div>
+          </div>
+        </div>
+        <div id="g-v3" style="display:none;">
+          <div class="breadcrumb"><span class="link" onclick="nav('g',1)">A receber</span> › <span class="link" onclick="nav('g',2)" id="g-b3a"></span> › <strong id="g-b3b"></strong></div>
+          <div class="ph"><div><div class="pt" id="g-t3"></div><div class="ps" id="g-s3"></div></div></div>
+          <div class="aviso-ro">🔒 Apenas o administrador pode editar valores de parcelas e marcar pagamentos.</div>
+          <div class="tc"><div class="tc-head"><span class="tc-title">Posição analítica</span><span id="g-tot3" style="font-size:12px;font-weight:500;color:var(--pb);"></span></div>
+            <div class="ph-ro"><span>Parcela</span><span>Vencimento</span><span>Valor</span><span>Rec. empresa</span><span>Status</span></div>
+            <div id="g-list3"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mi" id="g-exportar" style="display:none;">
+        <div class="ph"><div><div class="pt">Exportar vendas</div></div></div>
+        <div class="mes-sel"><label>Mês</label><select><option>Março 2025</option><option>Fevereiro 2025</option></select></div>
+        <div class="export-section"><div class="export-title">Minhas vendas</div>
+          <div class="export-row"><div><div class="export-name">Vendas — <span id="g-exp-nome"></span></div><div class="export-desc" id="g-exp-desc"></div></div>
+          <div class="export-btns"><button class="btn-exp" onclick="exportExcel('gerente')">↓ Excel</button><button class="btn-exp" onclick="exportPDF('gerente')">↓ PDF</button></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DIRETOR -->
+<div class="screen" id="sc-diretor">
+  <div class="topbar"><span class="tb-left">Place Brokers · <strong id="d-topname"></strong></span><span class="tb-badge badge-d" id="d-toprole"></span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sb-brand">Place<span>Brokers</span></div>
+      <div class="sb-user"><div class="sb-user-name" id="d-sbname"></div><div class="sb-user-role">Diretor</div></div>
+      <div class="nav-sec">Menu</div>
+      <div class="ni on" onclick="dTab('vendas',this)"><div class="ni-dot"></div>Todas as vendas</div>
+      <div class="ni" onclick="dTab('gerentes',this)"><div class="ni-dot"></div>Meus gerentes</div>
+      <div class="ni" onclick="dTab('empreendimentos',this)"><div class="ni-dot"></div>Empreendimentos</div>
+      <div class="ni" onclick="dTab('receber',this)"><div class="ni-dot"></div>A receber</div>
+      <div class="ni" onclick="dTab('exportar',this)"><div class="ni-dot"></div>Exportar</div>
+      <div class="sb-ft"><div class="sb-av" id="d-av"></div><div class="sb-ft-name" id="d-ftname"></div><button class="sb-ft-sair" onclick="logout()">Sair</button></div>
+    </div>
+    <div class="main">
+      <div class="mi" id="d-vendas">
+        <div class="ph"><div><div class="pt">Todas as vendas</div><div class="ps">Consolidado dos seus gerentes com comissões</div></div></div>
+        <div class="tc" id="d-vendas-tc"></div>
+      </div>
+      <div class="mi" id="d-gerentes" style="display:none;">
+        <div class="ph"><div><div class="pt">Meus gerentes</div></div></div>
+        <div class="hg" id="d-gerentes-hg"></div>
+      </div>
+      <div class="mi" id="d-empreendimentos" style="display:none;">
+        <div class="ph"><div><div class="pt">Empreendimentos</div><div class="ps">Aparecem para lançamento de vendas pelos gerentes</div></div><button class="btn btn-pb" onclick="abrirModalEmp(null,'d')">+ Novo empreendimento</button></div>
+        <div class="tc" id="d-emp-tc"></div>
+      </div>
+      <div class="mi" id="d-receber" style="display:none;">
+        <div id="d-v1">
+          <div class="ph"><div><div class="pt">Contas a receber</div><div class="ps">Consolidado dos gerentes</div></div></div>
+          <div class="metrics m4">
+            <div class="mc"><div class="mc-l">Total comissões</div><div class="mc-v" id="d-rec-total">—</div></div>
+            <div class="mc"><div class="mc-l">Corretor(es)</div><div class="mc-v" id="d-rec-cor">—</div></div>
+            <div class="mc"><div class="mc-l">Gerente(s) 12%</div><div class="mc-v" id="d-rec-ger">—</div></div>
+            <div class="mc"><div class="mc-l">Minha comissão 7%</div><div class="mc-v" id="d-rec-dir">—</div><div class="mc-s up">diretor</div></div>
+          </div>
+          <div class="meses-grid" id="d-meses-grid"></div>
+        </div>
+        <div id="d-v2" style="display:none;">
+          <div class="breadcrumb"><span class="link" onclick="nav('d',1)">A receber</span> › <strong id="d-b2"></strong></div>
+          <div class="ph"><div><div class="pt" id="d-t2"></div></div></div>
+          <div class="tc"><div id="d-list2"></div></div>
+        </div>
+        <div id="d-v3" style="display:none;">
+          <div class="breadcrumb"><span class="link" onclick="nav('d',1)">A receber</span> › <span class="link" onclick="nav('d',2)" id="d-b3a"></span> › <strong id="d-b3b"></strong></div>
+          <div class="ph"><div><div class="pt" id="d-t3"></div><div class="ps" id="d-s3"></div></div></div>
+          <div class="aviso-ro">🔒 Apenas o administrador pode editar valores de parcelas e marcar pagamentos.</div>
+          <div class="tc"><div class="tc-head"><span class="tc-title">Posição analítica</span><span id="d-tot3" style="font-size:12px;font-weight:500;color:var(--pb);"></span></div>
+            <div class="ph-ro"><span>Parcela</span><span>Vencimento</span><span>Valor</span><span>Rec. empresa</span><span>Status</span></div>
+            <div id="d-list3"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mi" id="d-exportar" style="display:none;">
+        <div class="ph"><div><div class="pt">Exportar</div></div></div>
+        <div class="mes-sel"><label>Mês</label><select><option>Março 2025</option><option>Fevereiro 2025</option></select></div>
+        <div class="export-section"><div class="export-title">Consolidado</div>
+          <div class="export-row"><div><div class="export-name">Todos os gerentes — março 2025</div></div><div class="export-btns"><button class="btn-exp" onclick="exportExcel('diretor')">↓ Excel</button><button class="btn-exp" onclick="exportPDF('diretor')">↓ PDF</button></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="screen" id="sc-admin">
+  <div class="topbar"><span class="tb-left">Place Brokers · <strong>Administrador</strong></span><span class="tb-badge badge-a">Administrador</span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sb-brand">Place<span>Brokers</span></div>
+      <div class="sb-user"><div class="sb-user-name">Administrador</div><div class="sb-user-role">Visão total</div></div>
+      <div class="nav-sec">Menu</div>
+      <div class="ni" onclick="aTab('dash',this)"><div class="ni-dot"></div>Dashboard</div>
+      <div class="ni" onclick="aTab('empreendimentos',this)"><div class="ni-dot"></div>Empreendimentos</div>
+      <div class="ni" onclick="aTab('vendas',this)"><div class="ni-dot"></div>Todas as vendas</div>
+      <div class="ni on" onclick="aTab('receber',this)"><div class="ni-dot"></div>A receber</div>
+      <div class="ni" onclick="aTab('exportar',this)"><div class="ni-dot"></div>Exportar</div>
+      <div class="ni" onclick="aTab('backup',this)"><div class="ni-dot"></div>Backup / Importar</div>
+      <div class="ni" onclick="aTab('usuarios',this)"><div class="ni-dot"></div>Usuários</div>
+      <div class="sb-ft"><div class="sb-av">AD</div><div class="sb-ft-name">Administrador</div><button class="sb-ft-sair" onclick="logout()">Sair</button></div>
+    </div>
+    <div class="main">
+      <div class="mi" id="a-dash" style="display:none;">
+        <div class="ph"><div><div class="pt">Visão geral</div></div></div>
+        <div class="metrics m4" id="a-dash-m"></div>
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin:12px 0 8px;">Distribuição das comissões</div>
+        <div class="com-banner"><div class="com-grid" id="a-com-grid"></div></div>
+      </div>
+      <div class="mi" id="a-empreendimentos" style="display:none;">
+        <div class="ph"><div><div class="pt">Empreendimentos</div><div class="ps">Visíveis para lançamento de vendas pelos gerentes</div></div><button class="btn btn-pb" onclick="abrirModalEmp(null,'a')">+ Novo empreendimento</button></div>
+        <div class="tc" id="a-emp-tc"></div>
+      </div>
+      <div class="mi" id="a-vendas" style="display:none;">
+        <div class="ph"><div><div class="pt">Todas as vendas</div></div></div>
+        <div class="tc" id="a-vendas-tc"></div>
+      </div>
+      <div class="mi" id="a-receber">
+        <div id="a-v1">
+          <div class="ph"><div><div class="pt">Contas a receber</div><div class="ps">Empresa inteira</div></div></div>
+          <div class="metrics m4">
+            <div class="mc"><div class="mc-l">Total a receber</div><div class="mc-v" id="a-rec-total">—</div></div>
+            <div class="mc"><div class="mc-l">Pagas</div><div class="mc-v" id="a-rec-pagas">0</div><div class="mc-s up">quitadas</div></div>
+            <div class="mc"><div class="mc-l">Em aberto</div><div class="mc-v" id="a-rec-aberto">—</div></div>
+            <div class="mc"><div class="mc-l">Comissão admin</div><div class="mc-v" id="a-rec-adm">—</div></div>
+          </div>
+          <div class="meses-grid" id="a-meses-grid"></div>
+        </div>
+        <div id="a-v2" style="display:none;">
+          <div class="breadcrumb"><span class="link" onclick="nav('a',1)">A receber</span> › <strong id="a-b2"></strong></div>
+          <div class="ph"><div><div class="pt" id="a-t2"></div></div></div>
+          <div class="tc"><div id="a-list2"></div></div>
+        </div>
+        <div id="a-v3" style="display:none;">
+          <div class="breadcrumb"><span class="link" onclick="nav('a',1)">A receber</span> › <span class="link" onclick="nav('a',2)" id="a-b3a"></span> › <strong id="a-b3b"></strong></div>
+          <div class="ph"><div><div class="pt" id="a-t3"></div><div class="ps" id="a-s3"></div></div></div>
+          <div class="aviso-ok">✓ Admin: você pode editar o valor de cada parcela individualmente e marcar/desmarcar pagamentos.</div>
+          <div class="tc"><div class="tc-head"><span class="tc-title">Posição analítica</span><span id="a-tot3" style="font-size:12px;font-weight:500;color:var(--pb);"></span></div>
+            <div class="ph-rw"><span>Parcela</span><span>Vencimento</span><span>Valor (R$)</span><span>Rec. empresa</span><span>Status</span><span>Pago?</span><span>Ações</span></div>
+            <div id="a-list3"></div>
+          </div>
+          <div style="margin-top:8px;padding:8px 12px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--text2);">Total do contrato: <strong id="a-tot-contrato">—</strong></div>
+        </div>
+      </div>
+      <div class="mi" id="a-exportar" style="display:none;">
+        <div class="ph"><div><div class="pt">Exportar</div></div></div>
+        <div class="mes-sel"><label>Mês</label><select><option>Março 2025</option><option>Fevereiro 2025</option></select></div>
+        <div class="export-section"><div class="export-title">Empresa completa</div>
+          <div class="export-row"><div><div class="export-name">Todos — março 2025</div></div><div class="export-btns"><button class="btn-exp" onclick="exportExcel('admin')">↓ Excel</button><button class="btn-exp" onclick="exportPDF('admin')">↓ PDF</button></div></div>
+        </div>
+        <div class="export-section"><div class="export-title">Por diretor</div>
+          <div class="export-row"><div><div class="export-name">Luís Mendes — março 2025</div></div><div class="export-btns"><button class="btn-exp" onclick="exportExcel('dir-luis')">↓ Excel</button><button class="btn-exp" onclick="exportPDF('dir-luis')">↓ PDF</button></div></div>
+        </div>
+      </div>
+      <div class="mi" id="a-usuarios" style="display:none;">
+        <div class="ph"><div><div class="pt">Usuários e acessos</div></div><button class="btn btn-pb" onclick="abrirModalUsuario(null)">+ Novo usuário</button></div>
+        <div class="tc"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Vinculado a</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tbody-usuarios"></tbody></table></div>
+      </div>
+      <div class="mi" id="a-backup" style="display:none;">
+        <div class="ph"><div><div class="pt">Backup e Importação</div><div class="ps">Salve todos os dados ou restaure a partir de um backup</div></div></div>
+        <div class="export-section">
+          <div class="export-title">&#128190; Fazer Backup</div>
+          <div class="export-row">
+            <div><div class="export-name">Backup completo do sistema</div><div class="export-desc">Exporta vendas, parcelas, corretores, empreendimentos e usuários em formato JSON</div></div>
+            <div class="export-btns"><button class="btn-exp" onclick="fazerBackup()">&#8595; Baixar Backup (.json)</button></div>
+          </div>
+        </div>
+        <div class="export-section">
+          <div class="export-title">&#128194; Importar Backup</div>
+          <div class="export-row" style="flex-direction:column;align-items:flex-start;gap:12px;">
+            <div><div class="export-name">Restaurar a partir de arquivo</div><div class="export-desc" style="color:#D42B2B;font-weight:500;">&#9888;&#65039; Atenção: todos os dados atuais serão substituídos.</div></div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+              <label style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border:1px dashed #1D9E75;border-radius:8px;cursor:pointer;font-size:12px;color:#1D9E75;">
+                &#128193; Selecionar arquivo .json
+                <input type="file" id="backup-file-input" accept=".json" style="display:none;" onchange="previewBackup(this)"/>
+              </label>
+              <div id="backup-preview" style="font-size:12px;color:var(--text2);"></div>
+            </div>
+            <div id="backup-confirm-area" style="display:none;padding:12px;background:#FEF3C7;border-radius:8px;border:1px solid #F59E0B;width:100%;">
+              <div style="font-size:13px;font-weight:500;color:#92400E;margin-bottom:8px;" id="backup-preview-info"></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-ok" onclick="confirmarImportacao()">&#10003; Confirmar importação</button>
+                <button class="btn" onclick="cancelarImportacao()">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="export-section" style="border-color:#eee;">
+          <div class="export-title" style="color:var(--text2);font-size:13px;">Histórico de backups desta sessão</div>
+          <div id="backup-historico" style="font-size:12px;color:var(--text2);padding:8px 0;">Nenhum backup realizado nesta sessão.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAIS -->
+
+<!-- Modal empreendimento -->
+<div class="modal-overlay" id="modal-emp">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-hd-left"><div class="modal-title" id="me-title">Novo empreendimento</div></div><button class="modal-close" onclick="fecharModal('modal-emp')">×</button></div>
+    <div class="modal-body">
+      <div class="fg2" style="margin-bottom:10px;"><div class="ff"><label>Nome *</label><input id="me-nome" placeholder="Ex: Residencial Aurora"/></div><div class="ff"><label>Tipo</label><select id="me-tipo"><option>Residencial</option><option>Comercial</option><option>Misto</option></select></div></div>
+      <div class="fg2"><div class="ff"><label>Cidade</label><input id="me-cidade" placeholder="Ex: Recife"/></div><div class="ff"><label>Status</label><select id="me-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select></div></div>
+    </div>
+    <div class="modal-ft"><button class="btn" onclick="fecharModal('modal-emp')">Cancelar</button><button class="btn btn-pb" onclick="salvarEmp()">Salvar</button></div>
+  </div>
+</div>
+
+<!-- Modal corretor -->
+<div class="modal-overlay" id="modal-corretor">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-hd-left"><div class="modal-title" id="mc-title">Novo corretor</div></div><button class="modal-close" onclick="fecharModal('modal-corretor')">×</button></div>
+    <div class="modal-body">
+      <div class="fg2" style="margin-bottom:10px;">
+        <div class="ff"><label>Nome completo *</label><input id="mc-nome" placeholder="Nome do corretor"/></div>
+        <div class="ff"><label>CPF *</label><input id="mc-cpf" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14"/><span class="err-msg" id="err-mc-cpf">CPF inválido</span></div>
+      </div>
+      <div class="fg2">
+        <div class="ff"><label>Telefone</label><input id="mc-tel" placeholder="(00) 00000-0000" oninput="maskTel(this)" maxlength="16"/></div>
+        <div class="ff"><label>Status</label><select id="mc-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select></div>
+      </div>
+    </div>
+    <div class="modal-ft"><button class="btn" onclick="fecharModal('modal-corretor')">Cancelar</button><button class="btn btn-pb" onclick="salvarCorretor()">Salvar</button></div>
+  </div>
+</div>
+
+<!-- Modal editar venda — layout melhorado -->
+<div class="modal-overlay" id="modal-venda">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-hd">
+      <div class="modal-hd-left">
+        <div class="modal-title">Editar venda — <span id="mv-cliente"></span></div>
+        <div class="modal-sub" id="mv-sub"></div>
+      </div>
+      <button class="modal-close" onclick="fecharModal('modal-venda')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-sec">
+        <div class="modal-sec-t">Tipo e corretor</div>
+        <div class="fg3">
+          <div class="ff"><label>Tipo de venda</label><select id="mv-tipo"><option value="Apartado">Apartado</option><option value="Desligamento">Desligamento</option></select></div>
+          <div class="ff"><label>Corretor</label><select id="mv-corretor"></select></div>
+          <div class="ff"><label>% comissão corretor</label><input type="number" id="mv-pct-cor" oninput="calcModalCom()"/></div>
+        </div>
+      </div>
+      <div class="modal-sec">
+        <div class="modal-sec-t">Valores</div>
+        <div class="fg4">
+          <div class="ff"><label>VGV (R$)</label><input type="number" id="mv-vgv" oninput="calcModalCom()"/></div>
+          <div class="ff"><label>Comissão total (R$)</label><input type="number" id="mv-comissao" oninput="calcModalCom()"/></div>
+          <div class="ff"><label>Sinal (R$)</label><input type="number" id="mv-sinal"/></div>
+          <div class="ff"><label>Premiação (R$)</label><input type="number" id="mv-premiacao"/></div>
+        </div>
+        <div class="com-preview" id="mv-com-preview">
+          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-bottom:6px;">Distribuição da comissão</div>
+          <div id="mv-com-rows"></div>
+        </div>
+      </div>
+      <div class="modal-sec">
+        <div class="modal-sec-t">Parcelamento</div>
+        <div class="fg4">
+          <div class="ff"><label>Nº de parcelas</label><input type="number" id="mv-nparc"/></div>
+          <div class="ff"><label>Valor por parcela (R$)</label><input type="number" id="mv-vparc"/></div>
+          <div class="ff"><label>Data da 1ª parcela</label><input type="date" id="mv-inicio"/></div>
+          <div class="ff"><label>Regenerar parcelas?</label>
+            <select id="mv-regen">
+              <option value="nao">Não — manter editadas</option>
+              <option value="sim">Sim — regenerar todas</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft"><button class="btn" onclick="fecharModal('modal-venda')">Cancelar</button><button class="btn btn-pb" onclick="salvarEdicaoVenda()">Salvar alterações</button></div>
+  </div>
+</div>
+
+<!-- Modal usuário -->
+<div class="modal-overlay" id="modal-usuario">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-hd-left"><div class="modal-title" id="mu-title">Novo usuário</div></div><button class="modal-close" onclick="fecharModal('modal-usuario')">×</button></div>
+    <div class="modal-body">
+      <div class="fg2" style="margin-bottom:10px;"><div class="ff"><label>Nome *</label><input id="mu-nome" placeholder="Nome"/></div><div class="ff"><label>E-mail *</label><input id="mu-email" placeholder="email@placebrokers.com.br"/></div></div>
+      <div class="fg2" style="margin-bottom:10px;"><div class="ff"><label>Perfil *</label><select id="mu-perfil" onchange="toggleMuDir()"><option value="">Selecione...</option><option value="Gerente">Gerente</option><option value="Diretor">Diretor</option><option value="Admin">Admin</option></select></div><div class="ff" id="mu-dir-wrap" style="display:none;"><label>Vinculado ao diretor</label><select id="mu-dir"><option>Luís Mendes</option><option>Paula Andrade</option></select></div></div>
+      <div class="fg2"><div class="ff"><label id="mu-senha-lbl">Senha *</label><input type="password" id="mu-senha" placeholder="Mínimo 8 caracteres"/></div><div class="ff"><label>Status</label><select id="mu-status"><option>Ativo</option><option>Inativo</option></select></div></div>
+    </div>
+    <div class="modal-ft"><button class="btn" onclick="fecharModal('modal-usuario')">Cancelar</button><button class="btn btn-pb" onclick="salvarUsuario()">Salvar</button></div>
+  </div>
+</div>
+
+<!-- Modal confirmar -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="confirm-modal">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="conf-title">Confirmar exclusão?</div>
+    <div class="confirm-sub" id="conf-sub">Esta ação não pode ser desfeita.</div>
+    <div class="confirm-actions"><button class="btn" onclick="fecharModal('modal-confirm')">Cancelar</button><button class="btn btn-del" id="conf-ok">Excluir</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+<script>
+
+// ===== DADOS =====
+let empCtx='a', editEmpId=null, editCorId=null, editVendaId=null, editUsrId=null, editParcIdx=null;
+let selMes={g:0,d:0,a:0}, selCli={g:0,d:0,a:0};
+let formMode='novo'; // 'novo' ou 'editar'
+
+let empreendimentos=[
+  {id:1,nome:'Residencial Aurora',tipo:'Residencial',cidade:'Recife',status:'Ativo'},
+  {id:2,nome:'Torre Índigo',tipo:'Comercial',cidade:'Recife',status:'Ativo'},
+  {id:3,nome:'Park Ville',tipo:'Residencial',cidade:'Olinda',status:'Ativo'},
+];
+let corretores=[
+  {id:1,nome:'Roberto Almeida',cpf:'529.982.247-25',tel:'(81) 99812-3456',gerente:'joao',status:'Ativo'},
+  {id:2,nome:'Carla Santos',cpf:'871.765.537-68',tel:'(81) 98765-4321',gerente:'joao',status:'Ativo'},
+];
+let vendas=[
+  {id:1,tipo:'Apartado',cor_id:1,pct_cor:60,nome:'Ana Souza',cpf:'529.982.247-25',tel:'(81) 99999-9999',email:'ana@gmail.com',emp_id:1,unidade:'Apto 304-B',vgv:320000,comissao:15000,sinal:30000,premiacao:5000,pct_emp:6,nparc:6,vparc:1800,inicio:'2025-04-10',gerente:'joao'},
+  {id:2,tipo:'Desligamento',cor_id:2,pct_cor:55,nome:'Carlos Lima',cpf:'098.765.432-10',tel:'(81) 98888-8888',email:'carlos@outlook.com',emp_id:2,unidade:'Sala 210',vgv:480000,comissao:20000,sinal:48000,premiacao:8000,pct_emp:6,nparc:8,vparc:2400,inicio:'2025-05-10',gerente:'joao'},
+  {id:3,tipo:'Apartado',cor_id:1,pct_cor:60,nome:'Mariana Feitosa',cpf:'045.678.123-55',tel:'(81) 97777-7777',email:'mariana@yahoo.com',emp_id:1,unidade:'Apto 102-A',vgv:290000,comissao:12000,sinal:25000,premiacao:4000,pct_emp:6,nparc:5,vparc:1900,inicio:'2025-04-10',gerente:'joao'},
+];
+let usuarios=[
+  {id:1,nome:'João Silva',email:'joao@placebrokers.com.br',perfil:'Gerente',vinculo:'Luís Mendes',status:'Ativo'},
+  {id:2,nome:'Marina Costa',email:'marina@placebrokers.com.br',perfil:'Gerente',vinculo:'Luís Mendes',status:'Ativo'},
+  {id:3,nome:'Luís Mendes',email:'luis@placebrokers.com.br',perfil:'Diretor',vinculo:'—',status:'Ativo'},
+  {id:4,nome:'Paula Andrade',email:'paula@placebrokers.com.br',perfil:'Diretor',vinculo:'—',status:'Ativo'},
+  {id:5,nome:'Administrador',email:'admin@placebrokers.com.br',perfil:'Admin',vinculo:'—',status:'Ativo'},
+];
+const MN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const loginMap={'joao@placebrokers.com.br':{role:'gerente',name:'João Silva',initials:'JS',key:'joao'},'luis@placebrokers.com.br':{role:'diretor',name:'Luís Mendes',initials:'LM',key:'luis'},'admin@placebrokers.com.br':{role:'admin',name:'Administrador',initials:'AD',key:'admin'}};
+
+// ===== VALIDAÇÕES =====
+function validarCPF(s){
+  const c=s.replace(/\D/g,'');
+  if(c.length!==11||/^(\d)\1+$/.test(c))return false;
+  let sum=0;for(let i=0;i<9;i++)sum+=+c[i]*(10-i);
+  let r=sum*10%11;if(r===10||r===11)r=0;if(r!==+c[9])return false;
+  sum=0;for(let i=0;i<10;i++)sum+=+c[i]*(11-i);
+  r=sum*10%11;if(r===10||r===11)r=0;return r===+c[10];
+}
+function validarTel(s){const d=s.replace(/\D/g,'');return d.length===11&&d[2]==='9';}
+function validarEmail(s){return /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(s);}
+
+function maskCPF(inp){
+  let v=inp.value.replace(/\D/g,'').slice(0,11);
+  v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  inp.value=v;
+  if(v.replace(/\D/g,'').length===11){
+    const ok=validarCPF(v);
+    inp.classList.toggle('err',!ok);
+  } else inp.classList.remove('err');
+}
+function maskTel(inp){
+  let v=inp.value.replace(/\D/g,'').slice(0,11);
+  if(v.length>2)v='('+v.slice(0,2)+') '+v.slice(2);
+  if(v.replace(/\D/g,'').length>7)v=v.slice(0,10)+'-'+v.slice(10);
+  inp.value=v;
+  if(v.replace(/\D/g,'').length>=10){
+    const ok=validarTel(v);inp.classList.toggle('err',!ok);
+  } else inp.classList.remove('err');
+}
+function validaEmailInp(inp){
+  const v=inp.value.trim();
+  if(v.length>0)inp.classList.toggle('err',!validarEmail(v));
+  else inp.classList.remove('err');
+}
+
+// ===== COMISSÕES =====
+function calcCom(v){
+  const tot=v.comissao||0,pct=v.pct_cor||0;
+  const cor=tot*pct/100,ger=tot*.12,dir=tot*.07,adm=Math.max(0,tot-cor-ger-dir);
+  return{total:tot,cor,ger,dir,adm};
+}
+function fmtR(n){return 'R$ '+Math.round(n).toLocaleString('pt-BR');}
+
+function calcBannerForm(){
+  const com=parseFloat(document.getElementById('fc-comissao').value)||0;
+  const pct=parseFloat(document.getElementById('fc-pct-cor').value)||0;
+  const b=document.getElementById('form-com-banner');
+  if(!com){b.style.display='none';return;}
+  b.style.display='block';
+  const cor=com*pct/100,ger=com*.12,dir=com*.07,adm=Math.max(0,com-cor-ger-dir);
+  document.getElementById('form-com-grid').innerHTML=`
+    <div class="com-item"><div class="com-item-l">Corretor (${pct}%)</div><div class="com-item-v">${fmtR(cor)}</div></div>
+    <div class="com-item"><div class="com-item-l">Gerente (12%)</div><div class="com-item-v">${fmtR(ger)}</div></div>
+    <div class="com-item"><div class="com-item-l">Diretor (7%)</div><div class="com-item-v">${fmtR(dir)}</div></div>
+    <div class="com-item"><div class="com-item-l">Admin</div><div class="com-item-v">${fmtR(adm)}</div></div>`;
+}
+function calcModalCom(){
+  const com=parseFloat(document.getElementById('mv-comissao').value)||0;
+  const pct=parseFloat(document.getElementById('mv-pct-cor').value)||0;
+  if(!com){document.getElementById('mv-com-rows').innerHTML='';return;}
+  const cor=com*pct/100,ger=com*.12,dir=com*.07,adm=Math.max(0,com-cor-ger-dir);
+  document.getElementById('mv-com-rows').innerHTML=`
+    <div class="com-preview-row"><span>Corretor (${pct}%)</span><span>${fmtR(cor)}</span></div>
+    <div class="com-preview-row"><span>Gerente (12%)</span><span>${fmtR(ger)}</span></div>
+    <div class="com-preview-row"><span>Diretor (7%)</span><span>${fmtR(dir)}</span></div>
+    <div class="com-preview-row"><span>Admin (restante)</span><span>${fmtR(adm)}</span></div>
+    <div class="com-preview-row"><span>Total</span><span>${fmtR(com)}</span></div>`;
+}
+
+// ===== PARCELAS =====
+function gerarParcelas(v){
+  const [y,m,d]=v.inicio.split('-').map(Number);
+  const base=new Date(y,m-1,d);
+  return Array.from({length:v.nparc},(_,i)=>{
+    const dt=new Date(base.getTime()+i*30*24*60*60*1000);
+    const dd=String(dt.getDate()).padStart(2,'0'),mm=String(dt.getMonth()+1).padStart(2,'0'),yy=dt.getFullYear();
+    return{n:i+1,tot:v.nparc,dt:`${dd}/${mm}/${yy}`,val:v.vparc,st:i===0?'A vencer':'Futuro',pago:false};
+  });
+}
+function calcRec(val,pct){return fmtR((parseFloat(val)||0)*(pct||6)/100);}
+
+let parcelasData={};
+vendas.forEach(v=>{parcelasData[v.id]=gerarParcelas(v);});
+
+// ===== LOGIN / LOGOUT =====
+function preencherLogin(key){
+  var map={joao:'joao@placebrokers.com.br',luis:'luis@placebrokers.com.br',admin:'admin@placebrokers.com.br'};
+  document.getElementById('inp-email').value=map[key]||'';
+  document.getElementById('inp-senha').value='';
+  document.getElementById('login-err').style.display='none';
+  doLogin();
+}
+function doLogin(){
+  var raw=document.getElementById('inp-email').value.trim().toLowerCase();
+  if(!raw){document.getElementById('login-err').style.display='block';return;}
+  // aceita "joao", "joao@placebrokers.com.br", "joao@placebrokers", etc.
+  var email=raw;
+  if(!raw.includes('@')) email=raw+'@placebrokers.com.br';
+  else if(raw.includes('@') && !raw.includes('.')) email=raw+'.com.br';
+  // senha: qualquer valor é aceito (sem validação até troca pelo admin)
+  var u=loginMap[email];
+  if(!u){document.getElementById('login-err').style.display='block';return;}
+  document.getElementById('login-err').style.display='none';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  if(u.role==='gerente'){
+    ['g-topname','g-sbname','g-ftname'].forEach(id=>document.getElementById(id).textContent=u.name);
+    ['g-toprole','g-sbrole'].forEach(id=>document.getElementById(id).textContent='Gerente');
+    document.getElementById('g-av').textContent=u.initials;
+    document.getElementById('g-exp-nome').textContent=u.name;
+    document.getElementById('sc-gerente').classList.add('active');
+    populaEmpSelect();populaCorretorSelect(u.key);
+    renderVendasG(u.key);renderCorretores(u.key);buildMeses('g');recSummaryG();
+    setTimeout(buildParc,100);
+  } else if(u.role==='diretor'){
+    ['d-topname','d-sbname','d-ftname'].forEach(id=>document.getElementById(id).textContent=u.name);
+    document.getElementById('d-toprole').textContent='Diretor';document.getElementById('d-av').textContent=u.initials;
+    document.getElementById('sc-diretor').classList.add('active');
+    renderEmpTable('d');renderVendasD();renderGerentes();buildMeses('d');recSummaryD();
+  } else {
+    document.getElementById('sc-admin').classList.add('active');
+    renderEmpTable('a');renderVendasA();renderUsuarios();buildMeses('a');recSummaryA();renderDashA();
+  }
+}
+/* moved to DOMContentLoaded */
+/* moved to DOMContentLoaded */
+function logout(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('sc-login').classList.add('active');}
+
+// ===== TABS =====
+function gTab(t,el){
+  ['g-vendas','g-form','g-corretores','g-receber','g-exportar'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  const e=document.getElementById('g-'+t);if(e)e.style.display=t==='form'?'flex':'block';
+  if(t==='form')e.style.flexDirection='column';
+  if(el){document.querySelectorAll('#sc-gerente .ni').forEach(n=>n.classList.remove('on'));el.classList.add('on');}
+}
+function dTab(t,el){
+  ['d-vendas','d-gerentes','d-empreendimentos','d-receber','d-exportar'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  const e=document.getElementById('d-'+t);if(e)e.style.display='block';
+  if(el){document.querySelectorAll('#sc-diretor .ni').forEach(n=>n.classList.remove('on'));el.classList.add('on');}
+}
+function aTab(t,el){
+  ['a-dash','a-empreendimentos','a-vendas','a-receber','a-exportar','a-backup','a-usuarios'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  const e=document.getElementById('a-'+t);if(e)e.style.display='block';
+  if(el&&el.classList){document.querySelectorAll('#sc-admin .ni').forEach(n=>n.classList.remove('on'));el.classList.add('on');}
+}
+
+// ===== SELECTS =====
+function populaEmpSelect(){
+  const sel=document.getElementById('fc-emp');
+  sel.innerHTML='<option value="">Selecione...</option>';
+  empreendimentos.filter(e=>e.status==='Ativo').forEach(e=>{sel.innerHTML+=`<option value="${e.id}">${e.nome}</option>`;});
+}
+function populaCorretorSelect(key){
+  const sel=document.getElementById('fc-corretor');if(!sel)return;
+  sel.innerHTML='<option value="">Selecione...</option>';
+  corretores.filter(c=>c.gerente===key&&c.status==='Ativo').forEach(c=>{sel.innerHTML+=`<option value="${c.id}">${c.nome}</option>`;});
+}
+
+// ===== EMPREENDIMENTOS =====
+function renderEmpTable(ctx){
+  const el=document.getElementById(ctx+'-emp-tc');if(!el)return;
+  el.innerHTML=`<table><thead><tr><th>Nome</th><th>Tipo</th><th>Cidade</th><th>Status</th><th>Ações</th></tr></thead><tbody>${
+    empreendimentos.map(e=>`<tr><td style="font-weight:500;">${e.nome}</td><td>${e.tipo}</td><td>${e.cidade}</td><td><span class="bdg ${e.status==='Ativo'?'bg':'bgr'}">${e.status}</span></td>
+    <td style="display:flex;gap:4px;padding-top:8px;"><button class="btn btn-sm" onclick="abrirModalEmp(${e.id},'${ctx}')">Editar</button><button class="btn btn-sm btn-del" onclick="confirmarExc('emp',${e.id},'${e.nome}')">Excluir</button></td></tr>`).join('')
+  }</tbody></table>`;
+}
+function abrirModalEmp(id,ctx){
+  empCtx=ctx;editEmpId=id;
+  document.getElementById('me-title').textContent=id?'Editar empreendimento':'Novo empreendimento';
+  if(id){const e=empreendimentos.find(x=>x.id===id);if(!e)return;document.getElementById('me-nome').value=e.nome;document.getElementById('me-tipo').value=e.tipo;document.getElementById('me-cidade').value=e.cidade;document.getElementById('me-status').value=e.status;}
+  else{['me-nome','me-cidade'].forEach(i=>document.getElementById(i).value='');document.getElementById('me-tipo').value='Residencial';document.getElementById('me-status').value='Ativo';}
+  abrirModal('modal-emp');
+}
+function salvarEmp(){
+  const nome=document.getElementById('me-nome').value.trim();if(!nome){toast('Informe o nome','#D42B2B');return;}
+  const obj={nome,tipo:document.getElementById('me-tipo').value,cidade:document.getElementById('me-cidade').value,status:document.getElementById('me-status').value};
+  if(editEmpId){const e=empreendimentos.find(x=>x.id===editEmpId);if(e)Object.assign(e,obj);toast('Atualizado! ✓','#1D9E75');}
+  else{empreendimentos.push({id:Date.now(),...obj});toast('Empreendimento criado! ✓','#1D9E75');}
+  renderEmpTable(empCtx);populaEmpSelect();fecharModal('modal-emp');
+}
+
+// ===== CORRETORES =====
+function renderCorretores(key){
+  const meus=corretores.filter(c=>c.gerente===key);
+  document.getElementById('g-cor-tc').innerHTML=`<table><thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Status</th><th>Ações</th></tr></thead><tbody>${
+    meus.map(c=>`<tr><td style="font-weight:500;">${c.nome}</td><td class="cpf">${c.cpf}</td><td>${c.tel}</td><td><span class="bdg ${c.status==='Ativo'?'bg':'bgr'}">${c.status}</span></td>
+    <td style="display:flex;gap:4px;padding-top:8px;"><button class="btn btn-sm" onclick="abrirModalCorretor(${c.id})">Editar</button><button class="btn btn-sm btn-del" onclick="confirmarExc('corretor',${c.id},'${c.nome}')">Excluir</button></td></tr>`).join('')
+  }</tbody></table>`;
+  // resumo mês
+  const vsAll=vendas.filter(v=>v.gerente===key);
+  document.getElementById('g-cor-resumo').innerHTML=meus.map(c=>{
+    const vs=vsAll.filter(v=>v.cor_id===c.id);
+    const totCom=vs.reduce((s,v)=>s+calcCom(v).cor,0);
+    const totVgv=vs.reduce((s,v)=>s+v.vgv,0);
+    return `<div class="hc"><div class="hc-hd"><div class="av">${c.nome[0]}</div><div><div class="hn">${c.nome}</div><div class="hr">Corretor</div></div></div>
+      <div class="hrow"><span>Vendas no mês</span><span>${vs.length}</span></div>
+      <div class="hrow"><span>VGV total</span><span>${fmtR(totVgv)}</span></div>
+      <div class="hrow"><span>Comissão a receber</span><span style="color:#1D9E75;font-weight:600;">${fmtR(totCom)}</span></div></div>`;
+  }).join('');
+}
+function abrirModalCorretor(id){
+  editCorId=id;
+  document.getElementById('mc-title').textContent=id?'Editar corretor':'Novo corretor';
+  if(id){const c=corretores.find(x=>x.id===id);if(!c)return;document.getElementById('mc-nome').value=c.nome;document.getElementById('mc-cpf').value=c.cpf;document.getElementById('mc-tel').value=c.tel;document.getElementById('mc-status').value=c.status;}
+  else{['mc-nome','mc-cpf','mc-tel'].forEach(i=>document.getElementById(i).value='');document.getElementById('mc-status').value='Ativo';}
+  abrirModal('modal-corretor');
+}
+function salvarCorretor(){
+  const nome=document.getElementById('mc-nome').value.trim();
+  const cpf=document.getElementById('mc-cpf').value;
+  if(!nome){toast('Informe o nome','#D42B2B');return;}
+  if(!validarCPF(cpf)){toast('CPF inválido','#D42B2B');return;}
+  const obj={nome,cpf,tel:document.getElementById('mc-tel').value,status:document.getElementById('mc-status').value,gerente:'joao'};
+  if(editCorId){const c=corretores.find(x=>x.id===editCorId);if(c)Object.assign(c,obj);toast('Corretor atualizado! ✓','#1D9E75');}
+  else{corretores.push({id:Date.now(),...obj});toast('Corretor criado! ✓','#1D9E75');}
+  renderCorretores('joao');populaCorretorSelect('joao');fecharModal('modal-corretor');
+}
+
+// ===== VENDAS — RENDER =====
+function empNome(id){const e=empreendimentos.find(x=>x.id===id);return e?e.nome:'—';}
+function corNome(id){const c=corretores.find(x=>x.id===id);return c?c.nome:'—';}
+
+function renderVendasG(key){
+  const vs=vendas.filter(v=>v.gerente===key);
+  const tc=document.getElementById('g-vendas-tc');
+  if(!vs.length){tc.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text2);font-size:13px;">Nenhuma venda lançada ainda.</div>';return;}
+  tc.innerHTML=`<table><thead><tr><th>Tipo</th><th>Cliente / CPF</th><th>Empreendimento</th><th>Corretor</th><th>VGV</th><th>Comissão</th><th>Parcelas</th><th>Ações</th></tr></thead><tbody>${
+    vs.map(v=>`<tr>
+      <td><span class="bdg ${v.tipo==='Apartado'?'bapar':'bdes'}">${v.tipo}</span></td>
+      <td>${v.nome}<div class="cpf">${v.cpf}</div></td>
+      <td>${empNome(v.emp_id)}</td><td>${corNome(v.cor_id)}</td>
+      <td>${fmtR(v.vgv)}</td><td>${fmtR(v.comissao)}</td>
+      <td>${v.nparc}x ${fmtR(v.vparc)}</td>
+      <td style="display:flex;gap:4px;padding-top:8px;">
+        <button class="btn btn-sm" onclick="abrirEdicaoVenda(${v.id})">Editar</button>
+        <button class="btn btn-sm btn-del" onclick="confirmarExc('venda',${v.id},'${v.nome}')">Excluir</button>
+      </td></tr>`).join('')
+  }</tbody></table>`;
+}
+function renderVendasD(){
+  document.getElementById('d-vendas-tc').innerHTML=`<table><thead><tr><th>Tipo</th><th>Gerente</th><th>Cliente</th><th>Emp.</th><th>VGV</th><th>Com. total</th><th>Corretor</th><th>Gerente 12%</th><th>Diretor 7%</th></tr></thead><tbody>${
+    vendas.map(v=>{const c=calcCom(v);return`<tr>
+      <td><span class="bdg ${v.tipo==='Apartado'?'bapar':'bdes'}">${v.tipo}</span></td>
+      <td>João Silva</td><td>${v.nome}</td><td>${empNome(v.emp_id)}</td>
+      <td>${fmtR(v.vgv)}</td><td>${fmtR(v.comissao)}</td>
+      <td style="color:#1D9E75;">${fmtR(c.cor)}</td>
+      <td style="color:#2563EB;">${fmtR(c.ger)}</td>
+      <td style="color:#854F0B;">${fmtR(c.dir)}</td></tr>`;}).join('')
+  }</tbody></table>`;
+}
+function renderVendasA(){
+  document.getElementById('a-vendas-tc').innerHTML=`<table><thead><tr><th>Tipo</th><th>Cliente</th><th>Emp.</th><th>VGV</th><th>Com. total</th><th>Corretor</th><th>Gerente 12%</th><th>Diretor 7%</th><th>Admin</th></tr></thead><tbody>${
+    vendas.map(v=>{const c=calcCom(v);return`<tr>
+      <td><span class="bdg ${v.tipo==='Apartado'?'bapar':'bdes'}">${v.tipo}</span></td>
+      <td>${v.nome}</td><td>${empNome(v.emp_id)}</td><td>${fmtR(v.vgv)}</td><td>${fmtR(v.comissao)}</td>
+      <td>${fmtR(c.cor)}</td><td>${fmtR(c.ger)}</td><td>${fmtR(c.dir)}</td>
+      <td style="color:var(--pb);font-weight:600;">${fmtR(c.adm)}</td></tr>`;}).join('')
+  }</tbody></table>`;
+}
+function renderGerentes(){
+  const vs=vendas.filter(v=>v.gerente==='joao');
+  document.getElementById('d-gerentes-hg').innerHTML=`
+    <div class="hc"><div class="hc-hd"><div class="av">JS</div><div><div class="hn">João Silva</div><div class="hr">Gerente</div></div></div>
+      <div class="hrow"><span>Vendas</span><span>${vs.length}</span></div>
+      <div class="hrow"><span>VGV total</span><span>${fmtR(vs.reduce((s,v)=>s+v.vgv,0))}</span></div>
+      <div class="hrow"><span>Comissão gerente</span><span>${fmtR(vs.reduce((s,v)=>s+calcCom(v).ger,0))}</span></div></div>
+    <div class="hc"><div class="hc-hd"><div class="av">MC</div><div><div class="hn">Marina Costa</div><div class="hr">Gerente</div></div></div>
+      <div class="hrow"><span>Vendas</span><span>0</span></div><div class="hrow"><span>VGV total</span><span>R$ 0</span></div></div>`;
+}
+
+// ===== NOVA VENDA =====
+function abrirFormNovo(){
+  formMode='novo';
+  document.getElementById('g-form-title').textContent='Lançar nova venda';
+  document.getElementById('g-form-btn').textContent='Salvar venda';
+  // limpar campos
+  ['fc-nome','fc-cpf','fc-tel','fc-email','fc-unidade','fc-obs'].forEach(id=>{const e=document.getElementById(id);if(e){e.value='';e.classList.remove('err');}});
+  ['fc-vgv','fc-comissao','fc-sinal','fc-premiacao','fc-pct-cor'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('fc-tipo').value='';
+  document.getElementById('fc-corretor').value='';
+  document.getElementById('fc-emp').value='';
+  document.getElementById('fc-pct-emp').value='6';
+  document.getElementById('f-nparc').value='48';
+  document.getElementById('f-vparc').value='';
+  document.getElementById('f-inicio').value='2025-04-10';
+  document.getElementById('f-dia').value='10';
+  document.getElementById('form-com-banner').style.display='none';
+  buildParc();
+  gTab('form',document.querySelectorAll('#sc-gerente .ni')[1]);
+}
+
+function salvarVenda(){
+  const tipo=document.getElementById('fc-tipo').value;
+  const cor=document.getElementById('fc-corretor').value;
+  const emp=document.getElementById('fc-emp').value;
+  const nome=document.getElementById('fc-nome').value.trim();
+  const cpf=document.getElementById('fc-cpf').value;
+  const tel=document.getElementById('fc-tel').value;
+  const email=document.getElementById('fc-email').value.trim();
+
+  if(!tipo){toast('Selecione o tipo da venda','#D42B2B');return;}
+  if(!cor){toast('Selecione o corretor','#D42B2B');return;}
+  if(!emp){toast('Selecione o empreendimento','#D42B2B');return;}
+  if(!nome){toast('Informe o nome do cliente','#D42B2B');return;}
+  if(cpf&&!validarCPF(cpf)){toast('CPF inválido','#D42B2B');return;}
+  if(tel&&!validarTel(tel)){toast('Telefone inválido — DDD + 9 dígitos','#D42B2B');return;}
+  if(email&&!validarEmail(email)){toast('E-mail com domínio inválido','#D42B2B');return;}
+
+  if(formMode==='editar'&&editVendaId){
+    const v=vendas.find(x=>x.id===editVendaId);
+    if(v){
+      v.tipo=tipo;v.cor_id=parseInt(cor);v.pct_cor=parseFloat(document.getElementById('fc-pct-cor').value)||0;
+      v.nome=nome;v.cpf=cpf;v.tel=tel;v.email=email;v.emp_id=parseInt(emp);
+      v.unidade=document.getElementById('fc-unidade').value;
+      v.vgv=parseFloat(document.getElementById('fc-vgv').value)||0;
+      v.comissao=parseFloat(document.getElementById('fc-comissao').value)||0;
+      v.sinal=parseFloat(document.getElementById('fc-sinal').value)||0;
+      v.premiacao=parseFloat(document.getElementById('fc-premiacao').value)||0;
+      v.pct_emp=parseFloat(document.getElementById('fc-pct-emp').value)||6;
+      v.nparc=parseInt(document.getElementById('f-nparc').value)||v.nparc;
+      v.vparc=parseFloat(document.getElementById('f-vparc').value)||v.vparc;
+      v.inicio=document.getElementById('f-inicio').value||v.inicio;
+    }
+    toast('Venda atualizada! ✓','#1D9E75');
+  } else {
+    const id=Date.now();
+    const nova={id,tipo,cor_id:parseInt(cor),pct_cor:parseFloat(document.getElementById('fc-pct-cor').value)||0,
+      nome,cpf,tel,email,emp_id:parseInt(emp),unidade:document.getElementById('fc-unidade').value,
+      vgv:parseFloat(document.getElementById('fc-vgv').value)||0,
+      comissao:parseFloat(document.getElementById('fc-comissao').value)||0,
+      sinal:parseFloat(document.getElementById('fc-sinal').value)||0,
+      premiacao:parseFloat(document.getElementById('fc-premiacao').value)||0,
+      pct_emp:parseFloat(document.getElementById('fc-pct-emp').value)||6,
+      nparc:parseInt(document.getElementById('f-nparc').value)||48,
+      vparc:parseFloat(document.getElementById('f-vparc').value)||0,
+      inicio:document.getElementById('f-inicio').value||'2025-04-10',
+      gerente:'joao'};
+    vendas.push(nova);parcelasData[id]=gerarParcelas(nova);
+    toast('Venda salva! ✓','#1D9E75');
+  }
+  renderVendasG('joao');buildMeses('g');recSummaryG();
+  setTimeout(()=>gTab('vendas',document.querySelector('#sc-gerente .ni')),1500);
+}
+
+// ===== EDITAR VENDA (MODAL) =====
+function abrirEdicaoVenda(id){
+  editVendaId=id;const v=vendas.find(x=>x.id===id);if(!v)return;
+  document.getElementById('mv-cliente').textContent=v.nome;
+  document.getElementById('mv-sub').textContent=empNome(v.emp_id)+(v.unidade?' · '+v.unidade:'');
+  document.getElementById('mv-tipo').value=v.tipo;
+  const sel=document.getElementById('mv-corretor');
+  sel.innerHTML='<option value="">—</option>';
+  corretores.forEach(c=>{sel.innerHTML+=`<option value="${c.id}" ${c.id===v.cor_id?'selected':''}>${c.nome}</option>`;});
+  document.getElementById('mv-pct-cor').value=v.pct_cor;
+  document.getElementById('mv-vgv').value=v.vgv;
+  document.getElementById('mv-comissao').value=v.comissao;
+  document.getElementById('mv-sinal').value=v.sinal;
+  document.getElementById('mv-premiacao').value=v.premiacao;
+  document.getElementById('mv-nparc').value=v.nparc;
+  document.getElementById('mv-vparc').value=v.vparc;
+  document.getElementById('mv-inicio').value=v.inicio;
+  document.getElementById('mv-regen').value='nao';
+  calcModalCom();
+  abrirModal('modal-venda');
+}
+function salvarEdicaoVenda(){
+  const v=vendas.find(x=>x.id===editVendaId);if(!v)return;
+  v.tipo=document.getElementById('mv-tipo').value;
+  v.cor_id=parseInt(document.getElementById('mv-corretor').value)||v.cor_id;
+  v.pct_cor=parseFloat(document.getElementById('mv-pct-cor').value)||v.pct_cor;
+  v.vgv=parseFloat(document.getElementById('mv-vgv').value)||v.vgv;
+  v.comissao=parseFloat(document.getElementById('mv-comissao').value)||v.comissao;
+  v.sinal=parseFloat(document.getElementById('mv-sinal').value)||v.sinal;
+  v.premiacao=parseFloat(document.getElementById('mv-premiacao').value)||v.premiacao;
+  v.nparc=parseInt(document.getElementById('mv-nparc').value)||v.nparc;
+  v.vparc=parseFloat(document.getElementById('mv-vparc').value)||v.vparc;
+  v.inicio=document.getElementById('mv-inicio').value||v.inicio;
+  if(document.getElementById('mv-regen').value==='sim')parcelasData[v.id]=gerarParcelas(v);
+  renderVendasG('joao');buildMeses('g');recSummaryG();
+  fecharModal('modal-venda');toast('Venda atualizada! ✓','#1D9E75');
+}
+
+// ===== A RECEBER =====
+function recSummaryG(){
+  let tot=0,pg=0,ab=0;
+  vendas.forEach(v=>{(parcelasData[v.id]||[]).forEach(p=>{const n=parseFloat(p.val)||0;if(p.pago){pg++;}else{tot+=n;ab++;}});});
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  s('g-rec-total',fmtR(tot));s('g-rec-parc',ab+' parcelas');s('g-rec-pagas',pg);s('g-rec-aberto',ab);
+}
+function recSummaryD(){
+  const vs=vendas;
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  s('d-rec-total',fmtR(vs.reduce((s,v)=>s+v.comissao,0)));
+  s('d-rec-cor',fmtR(vs.reduce((s,v)=>s+calcCom(v).cor,0)));
+  s('d-rec-ger',fmtR(vs.reduce((s,v)=>s+calcCom(v).ger,0)));
+  s('d-rec-dir',fmtR(vs.reduce((s,v)=>s+calcCom(v).dir,0)));
+}
+function recSummaryA(){
+  let tot=0,pg=0,ab=0;
+  vendas.forEach(v=>{(parcelasData[v.id]||[]).forEach(p=>{const n=parseFloat(p.val)||0;if(p.pago){pg++;}else{tot+=n;ab++;}});});
+  const adm=vendas.reduce((s,v)=>s+calcCom(v).adm,0);
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  s('a-rec-total',fmtR(tot));s('a-rec-pagas',pg);s('a-rec-aberto',ab);s('a-rec-adm',fmtR(adm));
+}
+function renderDashA(){
+  const vs=vendas;
+  const totVgv=vs.reduce((s,v)=>s+v.vgv,0);
+  const totCom=vs.reduce((s,v)=>s+v.comissao,0);
+  const totCor=vs.reduce((s,v)=>s+calcCom(v).cor,0);
+  const totGer=vs.reduce((s,v)=>s+calcCom(v).ger,0);
+  const totDir=vs.reduce((s,v)=>s+calcCom(v).dir,0);
+  const totAdm=vs.reduce((s,v)=>s+calcCom(v).adm,0);
+  document.getElementById('a-dash-m').innerHTML=`
+    <div class="mc"><div class="mc-l">VGV total</div><div class="mc-v">${fmtR(totVgv)}</div></div>
+    <div class="mc"><div class="mc-l">Comissão total</div><div class="mc-v">${fmtR(totCom)}</div></div>
+    <div class="mc"><div class="mc-l">Vendas lançadas</div><div class="mc-v">${vs.length}</div></div>
+    <div class="mc"><div class="mc-l">Receita empresa (6%)</div><div class="mc-v">${fmtR(totVgv*.06)}</div></div>`;
+  document.getElementById('a-com-grid').innerHTML=`
+    <div class="com-item"><div class="com-item-l">Corretor(es)</div><div class="com-item-v">${fmtR(totCor)}</div></div>
+    <div class="com-item"><div class="com-item-l">Gerente(s) 12%</div><div class="com-item-v">${fmtR(totGer)}</div></div>
+    <div class="com-item"><div class="com-item-l">Diretor(es) 7%</div><div class="com-item-v">${fmtR(totDir)}</div></div>
+    <div class="com-item"><div class="com-item-l">Admin (restante)</div><div class="com-item-v" style="color:var(--pb);font-weight:600;">${fmtR(totAdm)}</div></div>`;
+}
+
+function buildMeses(p){
+  const grid=document.getElementById(p+'-meses-grid');if(!grid)return;
+  const data=vendas.map((v,i)=>({
+    mes:v.inicio.slice(5,7)+'/'+v.inicio.slice(2,4),
+    val:fmtR(v.vparc)+'/parcela',
+    qtd:(parcelasData[v.id]||[]).filter(x=>!x.pago).length,
+    pct:Math.min(100,Math.round((i+1)/vendas.length*100))
+  }));
+  grid.innerHTML=data.map((m,i)=>`<div class="mes-card" onclick="clickMes('${p}',${i})">
+    <div class="mes-nome">${m.mes}</div><div class="mes-val">${m.val}</div>
+    <div class="mes-qtd">${m.qtd} parcelas em aberto</div>
+    <div class="mes-bar"><div class="mes-bar-fill" style="width:${m.pct}%"></div></div></div>`).join('');
+}
+
+function clickMes(p,i){
+  selMes[p]=i;const v=vendas[i];if(!v)return;
+  show(p,'v2');
+  const lbl=v.inicio.slice(5,7)+'/'+v.inicio.slice(2,4);
+  document.getElementById(p+'-b2').textContent=lbl;
+  if(document.getElementById(p+'-t2'))document.getElementById(p+'-t2').textContent='Parcelas — '+lbl;
+  const list=document.getElementById(p+'-list2');
+  list.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:10px 1rem;font-size:12px;">
+    <div><div style="font-weight:500;">${v.nome}</div><div class="cpf">${v.cpf}</div></div>
+    <div style="color:var(--text2);">${empNome(v.emp_id)}</div>
+    <div style="color:var(--text2);">${corNome(v.cor_id)}</div>
+    <div><span class="bdg ${v.tipo==='Apartado'?'bapar':'bdes'}">${v.tipo}</span></div>
+    <div style="font-weight:500;">${v.nparc}x ${fmtR(v.vparc)}</div>
+    <button class="btn btn-sm" onclick="clickCli('${p}',${i})">Ver parcelas</button>
+  </div>`;
+}
+
+function clickCli(p,ci){
+  selCli[p]=ci;editParcIdx=null;
+  const v=vendas[ci];if(!v)return;
+  const parc=parcelasData[v.id]||[];
+  show(p,'v3');
+  const lbl=v.inicio.slice(5,7)+'/'+v.inicio.slice(2,4);
+  document.getElementById(p+'-b3a').textContent=lbl;
+  document.getElementById(p+'-b3b').textContent=v.nome;
+  document.getElementById(p+'-t3').textContent=v.nome+' · '+empNome(v.emp_id);
+  document.getElementById(p+'-s3').textContent=v.nparc+'x '+fmtR(v.vparc)+' · vencimento '+v.inicio.slice(8,10)+'/'+v.inicio.slice(5,7);
+  renderParcelas(p,v.id);
+}
+
+function renderParcelas(p,vid){
+  const parc=parcelasData[vid]||[];
+  const v=vendas.find(x=>x.id===vid);
+  const pg=parc.filter(x=>x.pago).length;
+  const totC=parc.reduce((s,x)=>s+(parseFloat(x.val)||0),0);
+  if(document.getElementById(p+'-tot3'))document.getElementById(p+'-tot3').textContent=pg+' pagas · '+(parc.length-pg)+' em aberto';
+  if(document.getElementById('a-tot-contrato'))document.getElementById('a-tot-contrato').textContent=fmtR(totC);
+  const stCls={Pago:'bg','A vencer':'ba',Atrasado:'br',Futuro:'bfut'};
+  const isAdmin=p==='a';
+
+  document.getElementById(p+'-list3').innerHTML=parc.map((x,i)=>{
+    const editing=isAdmin&&editParcIdx===i;
+    const valCell=editing
+      ?`<input class="parc-val-inp" id="pi-${i}" value="${x.val}" onkeydown="if(event.key==='Enter')salvarValParc('${p}',${vid},${i})"/>`
+      :`<span style="font-weight:500;">${fmtR(x.val)}</span>`;
+    const recEmp=fmtR((parseFloat(x.val)||0)*(v?v.pct_emp||6:6)/100);
+    const rowClass=isAdmin?'pr-rw'+(x.pago?' pago':'')+(editing?' editando':''):'pr-ro';
+    const statusBdg=`<span class="bdg ${x.pago?'bg':stCls[x.st]||'bgr'}">${x.pago?'Pago':x.st}</span>`;
+    const acoesPago=isAdmin?(x.pago
+      ?`<button class="btn btn-sm btn-del" onclick="togglePago('${p}',${vid},${i})">Desfazer</button>`
+      :`<button class="btn btn-sm btn-ok" onclick="togglePago('${p}',${vid},${i})">Pago</button>`):'';
+    const acoesEdit=isAdmin?(editing
+      ?`<span style="display:flex;gap:3px;"><button class="btn btn-sm btn-ok" onclick="salvarValParc('${p}',${vid},${i})">✓</button><button class="btn btn-sm" onclick="cancelEditParc('${p}',${vid})">✕</button></span>`
+      :`<button class="btn btn-sm btn-blue" onclick="editarParc('${p}',${vid},${i})">Editar valor</button>`):'';
+    return `<div class="${rowClass}">
+      <span style="font-weight:500;">${x.n}/${x.tot}</span>
+      <span style="color:var(--text2);font-size:11px;">${x.dt}</span>
+      ${valCell}
+      <span style="color:var(--text2);font-size:11px;">${recEmp}</span>
+      ${statusBdg}
+      ${isAdmin?acoesPago:''}
+      ${acoesEdit}
+    </div>`;
+  }).join('');
+
+  if(isAdmin&&editParcIdx!==null){
+    setTimeout(()=>{const inp=document.getElementById('pi-'+editParcIdx);if(inp){inp.focus();inp.select();}},50);
+  }
+}
+
+function editarParc(p,vid,i){editParcIdx=i;renderParcelas(p,vid);}
+function cancelEditParc(p,vid){editParcIdx=null;renderParcelas(p,vid);}
+function salvarValParc(p,vid,i){
+  const inp=document.getElementById('pi-'+i);if(!inp)return;
+  const novo=parseFloat(inp.value.replace(/[^\d,.]/g,'').replace(',','.'));
+  if(isNaN(novo)||novo<0){toast('Valor inválido','#D42B2B');return;}
+  parcelasData[vid][i].val=novo;
+  editParcIdx=null;
+  renderParcelas(p,vid);recSummaryA();buildMeses(p);
+  toast('Parcela '+(i+1)+' atualizada! ✓','#1D9E75');
+}
+function togglePago(p,vid,i){
+  const parc=parcelasData[vid];if(!parc)return;
+  parc[i].pago=!parc[i].pago;if(parc[i].pago)parc[i].st='Pago';
+  renderParcelas(p,vid);
+  if(p==='a')recSummaryA();else recSummaryG();
+  buildMeses(p);
+  toast(parc[i].pago?'Marcada como paga! ✓':'Pagamento desfeito','#1D9E75');
+}
+
+function show(p,v){['v1','v2','v3'].forEach(x=>{const e=document.getElementById(p+'-'+x);if(e)e.style.display='none';});const e=document.getElementById(p+'-'+v);if(e)e.style.display='block';}
+function nav(p,v){editParcIdx=null;show(p,'v'+v);}
+
+// ===== PRÉVIA PARCELAS FORM =====
+function buildParc(){
+  const n=parseInt(document.getElementById('f-nparc')?.value)||48;
+  const inicio=document.getElementById('f-inicio')?.value||'2025-04-10';
+  const [y,m,d]=inicio.split('-').map(Number);
+  const base=new Date(y,m-1,d);
+  let html='';
+  for(let i=0;i<Math.min(n,8);i++){
+    const dt=new Date(base.getTime()+i*30*24*60*60*1000);
+    const dd=String(dt.getDate()).padStart(2,'0'),mm=String(dt.getMonth()+1).padStart(2,'0'),yy=String(dt.getFullYear()).slice(2);
+    html+=`<div class="pp">${i+1}/${n}<span>${dd}/${mm}/${yy}</span></div>`;
+  }
+  if(n>8)html+=`<div class="pp" style="opacity:.5;">+${n-8}<span>mais</span></div>`;
+  const el=document.getElementById('f-pp');if(el)el.innerHTML=html;
+}
+
+// ===== USUÁRIOS =====
+function renderUsuarios(){
+  const pBdg={Gerente:'bb',Diretor:'ba',Admin:'br'};const sBdg={Ativo:'bg',Inativo:'bgr'};
+  document.getElementById('tbody-usuarios').innerHTML=usuarios.map(u=>`<tr>
+    <td style="font-weight:500;">${u.nome}</td><td style="font-size:11px;">${u.email}</td>
+    <td><span class="bdg ${pBdg[u.perfil]||'bgr'}">${u.perfil}</span></td>
+    <td>${u.vinculo}</td>
+    <td><span class="bdg ${sBdg[u.status]||'bgr'}">${u.status}</span></td>
+    <td style="display:flex;gap:4px;padding-top:8px;">
+      <button class="btn btn-sm" onclick="abrirModalUsuario(${u.id})">Editar</button>
+      <button class="btn btn-sm btn-del" onclick="confirmarExc('usuario',${u.id},'${u.nome}')">Excluir</button>
+    </td></tr>`).join('');
+}
+function abrirModalUsuario(id){
+  editUsrId=id;
+  document.getElementById('mu-title').textContent=id?'Editar usuário':'Novo usuário';
+  document.getElementById('mu-senha-lbl').textContent=id?'Nova senha (opcional)':'Senha *';
+  if(id){const u=usuarios.find(x=>x.id===id);if(!u)return;document.getElementById('mu-nome').value=u.nome;document.getElementById('mu-email').value=u.email;document.getElementById('mu-perfil').value=u.perfil;document.getElementById('mu-status').value=u.status;document.getElementById('mu-senha').value='';toggleMuDir();if(u.vinculo&&u.vinculo!=='—')document.getElementById('mu-dir').value=u.vinculo;}
+  else{['mu-nome','mu-email','mu-senha'].forEach(i=>document.getElementById(i).value='');document.getElementById('mu-perfil').value='';document.getElementById('mu-status').value='Ativo';document.getElementById('mu-dir-wrap').style.display='none';}
+  abrirModal('modal-usuario');
+}
+function salvarUsuario(){
+  const nome=document.getElementById('mu-nome').value.trim(),email=document.getElementById('mu-email').value.trim(),perfil=document.getElementById('mu-perfil').value,status=document.getElementById('mu-status').value;
+  const vinculo=perfil==='Gerente'?document.getElementById('mu-dir').value:'—';
+  if(!nome||!email||!perfil){toast('Preencha os campos obrigatórios','#D42B2B');return;}
+  if(editUsrId){const u=usuarios.find(x=>x.id===editUsrId);if(u)Object.assign(u,{nome,email,perfil,status,vinculo});toast('Usuário atualizado! ✓','#1D9E75');}
+  else{usuarios.push({id:Date.now(),nome,email,perfil,status,vinculo});toast('Usuário criado! ✓','#1D9E75');}
+  renderUsuarios();fecharModal('modal-usuario');
+}
+function toggleMuDir(){document.getElementById('mu-dir-wrap').style.display=document.getElementById('mu-perfil').value==='Gerente'?'flex':'none';}
+
+// ===== CONFIRMAR EXCLUSÃO =====
+function confirmarExc(tipo,id,nome){
+  document.getElementById('conf-title').textContent='Excluir '+tipo+'?';
+  document.getElementById('conf-sub').textContent='"'+nome+'" será removido permanentemente.';
+  document.getElementById('conf-ok').onclick=()=>{
+    if(tipo==='venda'){vendas=vendas.filter(x=>x.id!==id);delete parcelasData[id];renderVendasG('joao');buildMeses('g');recSummaryG();}
+    else if(tipo==='corretor'){corretores=corretores.filter(x=>x.id!==id);renderCorretores('joao');populaCorretorSelect('joao');}
+    else if(tipo==='emp'){empreendimentos=empreendimentos.filter(x=>x.id!==id);renderEmpTable(empCtx);populaEmpSelect();}
+    else if(tipo==='usuario'){usuarios=usuarios.filter(x=>x.id!==id);renderUsuarios();}
+    toast('Excluído com sucesso','#D42B2B');fecharModal('modal-confirm');
+  };
+  abrirModal('modal-confirm');
+}
+
+// ===== MODAL HELPERS =====
+function abrirModal(id){document.getElementById(id).classList.add('open');}
+function fecharModal(id){document.getElementById(id).classList.remove('open');}
+/* moved to DOMContentLoaded */
+
+// ===== SINAL TABLE =====
+function addSRow(){
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input placeholder="Descrição"/></td><td><input value="0,00"/></td><td><select><option>Corretor/Gerente</option><option>Construtora</option><option>Imobiliária</option></select></td><td><button class="btn btn-sm btn-del" onclick="this.closest('tr').remove()">✕</button></td>`;
+  document.getElementById('f-sinal-body').appendChild(tr);
+}
+
+// ===== TOAST =====
+function toast(msg,bg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=bg||'#1a1a1a';t.style.display='block';
+  clearTimeout(t._to);t._to=setTimeout(()=>{t.style.display='none';},2800);
+}
+
+// ===== EXPORTAR =====
+function getVendasParaExport(ctx){
+  if(ctx==='gerente') return vendas.filter(v=>v.gerente==='joao');
+  if(ctx==='dir-luis') return vendas.filter(v=>v.gerente==='joao');
+  return vendas;
+}
+function getTituloExport(ctx){
+  if(ctx==='gerente') return 'Vendas — João Silva';
+  if(ctx==='diretor') return 'Todos os Gerentes — Consolidado';
+  if(ctx==='admin') return 'Place Brokers — Empresa Completa';
+  if(ctx==='dir-luis') return 'Luís Mendes — Vendas';
+  return 'Exportar';
+}
+function buildLinhas(vs){
+  return vs.map(v=>{
+    const emp=empNome(v.emp_id),cor=corNome(v.cor_id),com=calcCom(v);
+    return [v.tipo,v.nome,v.cpf,emp,v.unidade||'',cor,v.vgv,v.comissao,v.sinal,v.premiacao||0,
+      Math.round(com.cor),Math.round(com.ger),Math.round(com.dir),Math.round(com.adm),
+      v.nparc,v.vparc||0,v.inicio];
+  });
+}
+const CABECALHO=['Tipo','Cliente','CPF','Empreendimento','Unidade','Corretor','VGV (R$)','Comissão (R$)','Sinal (R$)','Premiação (R$)','Corretor com.','Gerente com.','Diretor com.','Admin com.','Nº Parcelas','Vl. Parcela','Data 1ª Parcela'];
+
+function exportExcel(ctx){
+  try{
+    const vs=getVendasParaExport(ctx);
+    if(!vs.length){toast('Nenhuma venda para exportar','#D42B2B');return;}
+    const linhas=buildLinhas(vs);
+    const ws=XLSX.utils.aoa_to_sheet([CABECALHO,...linhas]);
+    ws['!cols']=[{wch:14},{wch:22},{wch:16},{wch:22},{wch:12},{wch:20},{wch:13},{wch:14},{wch:12},{wch:12},{wch:14},{wch:14},{wch:14},{wch:12},{wch:12},{wch:12},{wch:16}];
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'Vendas');
+    const parcRows=[['Cliente','Empreendimento','Parcela','Vencimento','Valor (R$)','Rec. Empresa (R$)','Status']];
+    vs.forEach(v=>{
+      const ps=parcelasData[v.id]||[];
+      ps.forEach(p=>{parcRows.push([v.nome,empNome(v.emp_id),p.n+'/'+p.tot,p.dt,p.val||0,Math.round((p.val||0)*(v.pct_emp||6)/100),p.pago?'Pago':p.st]);});
+    });
+    const ws2=XLSX.utils.aoa_to_sheet(parcRows);
+    ws2['!cols']=[{wch:22},{wch:22},{wch:10},{wch:14},{wch:12},{wch:16},{wch:10}];
+    XLSX.utils.book_append_sheet(wb,ws2,'Parcelas');
+    XLSX.writeFile(wb,'PlaceBrokers_'+ctx+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+    toast('Excel exportado! ✓','#1D9E75');
+  }catch(e){toast('Erro ao exportar Excel','#D42B2B');console.error(e);}
+}
+
+function exportPDF(ctx){
+  try{
+    const vs=getVendasParaExport(ctx);
+    if(!vs.length){toast('Nenhuma venda para exportar','#D42B2B');return;}
+    const titulo=getTituloExport(ctx);
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    doc.setFillColor(30,30,30);doc.rect(0,0,297,18,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont('helvetica','bold');
+    doc.text('Place',14,12);doc.setTextColor(212,43,43);doc.text('Brokers',35,12);
+    doc.setTextColor(200,200,200);doc.setFontSize(9);doc.setFont('helvetica','normal');
+    doc.text(titulo,80,12);doc.setTextColor(150,150,150);
+    doc.text('Gerado em '+new Date().toLocaleDateString('pt-BR'),240,12);
+    const cabRed=['Tipo','Cliente','Empreendimento','Corretor','VGV','Comissão','Sinal','Cor.','Ger.','Dir.','Parcelas'];
+    const linRed=vs.map(v=>{
+      const com=calcCom(v);
+      const trunc=(s,n)=>s&&s.length>n?s.slice(0,n-1)+'…':s||'';
+      return [v.tipo,trunc(v.nome,18),trunc(empNome(v.emp_id),18),trunc(corNome(v.cor_id),15),
+        'R$'+Math.round(v.vgv/1000)+'k','R$'+Math.round(v.comissao/1000)+'k','R$'+Math.round(v.sinal/1000)+'k',
+        'R$'+Math.round(com.cor/1000)+'k','R$'+Math.round(com.ger/1000)+'k','R$'+Math.round(com.dir/1000)+'k',
+        v.nparc+'x'];
+    });
+    doc.autoTable({head:[cabRed],body:linRed,startY:22,theme:'grid',
+      headStyles:{fillColor:[30,30,30],textColor:255,fontSize:8,fontStyle:'bold'},
+      bodyStyles:{fontSize:8,cellPadding:2},alternateRowStyles:{fillColor:[248,248,248]},
+      margin:{left:10,right:10}});
+    const totVgv=vs.reduce((s,v)=>s+v.vgv,0),totCom=vs.reduce((s,v)=>s+v.comissao,0);
+    const totCor=vs.reduce((s,v)=>s+calcCom(v).cor,0),totGer=vs.reduce((s,v)=>s+calcCom(v).ger,0),totDir=vs.reduce((s,v)=>s+calcCom(v).dir,0);
+    const y=doc.lastAutoTable.finalY+8;
+    doc.setFillColor(245,245,244);doc.rect(10,y,277,12,'F');
+    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(30,30,30);
+    doc.text('RESUMO:',14,y+8);doc.setFont('helvetica','normal');doc.setTextColor(80,80,80);
+    doc.text('Vendas: '+vs.length,42,y+8);
+    doc.text('VGV: R$'+totVgv.toLocaleString('pt-BR'),65,y+8);
+    doc.text('Comissões: R$'+totCom.toLocaleString('pt-BR'),115,y+8);
+    doc.text('Corretores: R$'+Math.round(totCor).toLocaleString('pt-BR'),165,y+8);
+    doc.text('Gerentes: R$'+Math.round(totGer).toLocaleString('pt-BR'),210,y+8);
+    doc.text('Diretores: R$'+Math.round(totDir).toLocaleString('pt-BR'),252,y+8);
+    // pag parcelas
+    doc.addPage('a4','landscape');
+    doc.setFillColor(30,30,30);doc.rect(0,0,297,18,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(12);doc.setFont('helvetica','bold');
+    doc.text('PlaceBrokers · Parcelas Detalhadas',14,12);
+    const pRows=[];
+    vs.forEach(v=>{
+      (parcelasData[v.id]||[]).forEach(p=>{
+        pRows.push([v.nome,empNome(v.emp_id),p.n+'/'+p.tot,p.dt,'R$ '+(p.val||0).toLocaleString('pt-BR'),'R$ '+Math.round((p.val||0)*(v.pct_emp||6)/100).toLocaleString('pt-BR'),p.pago?'Pago':p.st]);
+      });
+    });
+    doc.autoTable({head:[['Cliente','Empreendimento','Parcela','Vencimento','Valor','Rec. Empresa','Status']],
+      body:pRows,startY:22,theme:'grid',
+      headStyles:{fillColor:[30,30,30],textColor:255,fontSize:8,fontStyle:'bold'},
+      bodyStyles:{fontSize:7.5,cellPadding:1.8},alternateRowStyles:{fillColor:[248,248,248]},
+      didParseCell:function(d){if(d.section==='body'&&d.column.index===6){if(d.cell.raw==='Pago')d.cell.styles.textColor=[29,158,117];else if(d.cell.raw==='A vencer')d.cell.styles.textColor=[37,99,235];}},
+      margin:{left:10,right:10}});
+    doc.save('PlaceBrokers_'+ctx+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+    toast('PDF exportado! ✓','#1D9E75');
+  }catch(e){toast('Erro ao exportar PDF','#D42B2B');console.error(e);}
+}
+
+// ===== BACKUP =====
+var backupPendente=null,backupHistorico=[];
+function fazerBackup(){
+  var dados={versao:'1.0',data:new Date().toISOString(),sistema:'PlaceBrokers',vendas:vendas,corretores:corretores,empreendimentos:empreendimentos,usuarios:usuarios,parcelasData:parcelasData};
+  var json=JSON.stringify(dados,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='PlaceBrokers_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  backupHistorico.unshift({data:new Date().toLocaleString('pt-BR'),vendas:vendas.length,corretores:corretores.length});
+  atualizarHistoricoBackup();
+  toast('Backup baixado! ✓','#1D9E75');
+}
+function atualizarHistoricoBackup(){
+  var el=document.getElementById('backup-historico');if(!el)return;
+  if(!backupHistorico.length){el.textContent='Nenhum backup realizado nesta sessão.';return;}
+  el.innerHTML=backupHistorico.map(b=>'<div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span>'+b.data+'</span><span style="color:var(--text2);">'+b.vendas+' vendas · '+b.corretores+' corretores</span></div>').join('');
+}
+function previewBackup(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var dados=JSON.parse(e.target.result);
+      if(!dados.sistema||dados.sistema!=='PlaceBrokers'){
+        toast('Arquivo inválido — não é um backup do PlaceBrokers','#D42B2B');
+        document.getElementById('backup-confirm-area').style.display='none';
+        document.getElementById('backup-preview').textContent='Arquivo inválido';
+        backupPendente=null;return;
+      }
+      backupPendente=dados;
+      var dataBackup=new Date(dados.data).toLocaleString('pt-BR');
+      document.getElementById('backup-preview').textContent='Arquivo válido: '+file.name;
+      document.getElementById('backup-preview').style.color='#1D9E75';
+      document.getElementById('backup-preview-info').innerHTML='Backup de <strong>'+dataBackup+'</strong> · '+(dados.vendas?dados.vendas.length:0)+' vendas · '+(dados.corretores?dados.corretores.length:0)+' corretores · '+(dados.empreendimentos?dados.empreendimentos.length:0)+' empreendimentos · '+(dados.usuarios?dados.usuarios.length:0)+' usuários';
+      document.getElementById('backup-confirm-area').style.display='block';
+    }catch(err){
+      toast('Erro ao ler arquivo JSON','#D42B2B');
+      document.getElementById('backup-confirm-area').style.display='none';
+      document.getElementById('backup-preview').textContent='Erro ao ler arquivo';
+      document.getElementById('backup-preview').style.color='#D42B2B';
+      backupPendente=null;
+    }
+  };
+  reader.readAsText(file);
+}
+function confirmarImportacao(){
+  if(!backupPendente){toast('Nenhum backup selecionado','#D42B2B');return;}
+  var d=backupPendente;
+  if(d.vendas)vendas=d.vendas;
+  if(d.corretores)corretores=d.corretores;
+  if(d.empreendimentos)empreendimentos=d.empreendimentos;
+  if(d.usuarios)usuarios=d.usuarios;
+  if(d.parcelasData)parcelasData=d.parcelasData;
+  else{parcelasData={};vendas.forEach(v=>{parcelasData[v.id]=gerarParcelas(v);});}
+  renderEmpTable('a');renderVendasA();renderUsuarios();buildMeses('a');recSummaryA();renderDashA();
+  cancelarImportacao();
+  toast('Importação concluída! ✓','#1D9E75');
+}
+function cancelarImportacao(){
+  backupPendente=null;
+  document.getElementById('backup-confirm-area').style.display='none';
+  document.getElementById('backup-preview').textContent='';
+  var inp=document.getElementById('backup-file-input');if(inp)inp.value='';
+}
+
+// ===== DOM READY =====
+document.addEventListener('DOMContentLoaded', function() {
+  var es = document.getElementById('inp-senha');
+  var ee = document.getElementById('inp-email');
+  if (es) es.addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+  if (ee) ee.addEventListener('keydown', function(e) { if (e.key === 'Enter') { var s = document.getElementById('inp-senha'); if (s) s.focus(); } });
+  document.querySelectorAll('.modal-overlay').forEach(function(o) {
+    o.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+  });
+});
+
+</script>
+</body>
+</html>
